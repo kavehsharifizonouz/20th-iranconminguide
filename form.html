@@ -72,7 +72,7 @@
 
       <div class="status" id="status">آماده دریافت صدا...</div>
 
-      <button type="submit" class="btn btn-save">💾 ذخیره این رکورد</button>
+      <button type="submit" class="btn btn-save">✅ ثبت و رکورد بعدی</button>
       <button type="button" class="btn btn-download" onclick="downloadExcel()">📥 دانلود همه اطلاعات (اکسل)</button>
       <button type="button" class="btn btn-clear" onclick="clearData()">🗑️ پاک کردن همه اطلاعات</button>
     </form>
@@ -150,7 +150,7 @@
       });
     });
 
-    // ذخیره رکورد
+    // ذخیره رکورد و آماده‌سازی برای رکورد بعدی
     document.getElementById('voiceForm').addEventListener('submit', function(e) {
       e.preventDefault();
 
@@ -167,13 +167,13 @@
       records.push(record);
       localStorage.setItem('formRecords', JSON.stringify(records));
 
-      // پاک کردن فرم
+      // پاک کردن فرم برای رکورد بعدی
       document.getElementById('voiceForm').reset();
       document.getElementById('preview').style.display = 'none';
       photoName = '';
 
       updateCounter();
-      alert('رکورد با موفقیت ذخیره شد');
+      alert('رکورد ثبت شد. می‌توانید رکورد بعدی را وارد کنید.');
     });
 
     // دانلود اکسل همه رکوردها
