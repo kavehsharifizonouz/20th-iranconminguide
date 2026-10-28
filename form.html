@@ -119,15 +119,26 @@
       }
     });
 
-    // دانلود عکس با اسم فرد
-    function downloadPhoto() {
-      if (!photoBase64) return alert('عکسی انتخاب نشده');
+    // ساخت نام امن فایل از نام فرد
+    function makePhotoFileName(name) {
+      const safe = (name || 'بدون_نام')
+        .trim()
+        .replace(/[\\/:*?"<>|]/g, '_')  // کاراکترهای غیرمجاز فایل
+        .replace(/\s+/g, ' ');           // فاصله‌های اضافی
+      return safe + '.jpg';
+    }
 
-      const personName = document.getElementById('name').value.trim() || 'بدون_نام';
-      const fileName = personName + '.jpg';
+    // دانلود عکس با اسم فرد
+    function downloadPhoto(base64, fileName) {
+      if (!base64) {
+        if (!photoBase64) return alert('عکسی انتخاب نشده');
+        base64 = photoBase64;
+        const personName = document.getElementById('name').value.trim() || 'بدون_نام';
+        fileName = makePhotoFileName(personName);
+      }
 
       const link = document.createElement('a');
-      link.href = photoBase64;
+      link.href = base64;
       link.download = fileName;
       link.click();
     }
@@ -183,6 +194,13 @@
 
       const gender = document.querySelector('input[name="gender"]:checked')?.value || '-';
       const personName = document.getElementById('name').value.trim() || 'بدون_نام';
+      const photoFileName = makePhotoFileName(personName);
+
+      // اگر عکس انتخاب شده، خودکار با نام فرد دانلود (ذخیره در گالری/دانلودها)
+      const hadPhoto = !!photoBase64;
+      if (hadPhoto) {
+        downloadPhoto(photoBase64, photoFileName);
+      }
 
       const record = {
         gender: gender,
@@ -190,7 +208,7 @@
         phone: document.getElementById('phone').value || '-',
         subject: document.getElementById('subject').value || '-',
         message: document.getElementById('message').value || '-',
-        photo: personName + '.jpg',
+        photo: photoFileName,   // دقیقاً همان نامی که فایل با آن ذخیره شد
         date: new Date().toLocaleString('fa-IR')
       };
 
@@ -207,7 +225,9 @@
       document.querySelector('input[name="gender"][value="آقا"]').checked = true;
 
       updateCounter();
-      alert('رکورد ثبت شد');
+      alert(hadPhoto
+        ? 'رکورد ثبت شد\nعکس هم با نام «' + photoFileName + '» ذخیره شد'
+        : 'رکورد ثبت شد');
     });
 
     function downloadExcel() {
