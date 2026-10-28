@@ -47,7 +47,9 @@
           <img id="preview" class="photo-preview">
         </div>
         <input type="file" id="photo" accept="image/*" capture="user" style="display:none">
-        <button type="button" class="btn btn-photo" onclick="downloadPhoto()" style="margin-top:10px; display:none;" id="btnDownloadPhoto">📥 دانلود عکس (ذخیره در گالری)</button>
+        <button type="button" class="btn btn-photo" onclick="downloadPhoto()" style="margin-top:10px; display:none;" id="btnDownloadPhoto">
+          📥 دانلود عکس (ذخیره در گالری)
+        </button>
       </div>
 
       <!-- جنسیت -->
@@ -117,12 +119,16 @@
       }
     });
 
-    // دانلود عکس برای ذخیره در گالری
+    // دانلود عکس با اسم فرد
     function downloadPhoto() {
       if (!photoBase64) return alert('عکسی انتخاب نشده');
+
+      const personName = document.getElementById('name').value.trim() || 'بدون_نام';
+      const fileName = personName + '.jpg';
+
       const link = document.createElement('a');
       link.href = photoBase64;
-      link.download = photoName || 'photo.jpg';
+      link.download = fileName;
       link.click();
     }
 
@@ -176,14 +182,15 @@
       e.preventDefault();
 
       const gender = document.querySelector('input[name="gender"]:checked')?.value || '-';
+      const personName = document.getElementById('name').value.trim() || 'بدون_نام';
 
       const record = {
         gender: gender,
-        name: document.getElementById('name').value || '-',
+        name: personName,
         phone: document.getElementById('phone').value || '-',
         subject: document.getElementById('subject').value || '-',
         message: document.getElementById('message').value || '-',
-        photo: photoName || 'ندارد',
+        photo: personName + '.jpg',
         date: new Date().toLocaleString('fa-IR')
       };
 
