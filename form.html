@@ -253,29 +253,29 @@
       font-size: 1.2rem;
       color: #0f172a;
     }
-    .modal-table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid #e2e8f0; }
+    .modal-table-wrap { overflow: visible; border-radius: 12px; border: 1px solid #e2e8f0; }
     .modal table {
       width: 100%;
       border-collapse: collapse;
       font-size: 0.84rem;
+      table-layout: fixed;
     }
     .modal th, .modal td {
       border-bottom: 1px solid #e2e8f0;
-      padding: 10px 8px;
+      padding: 10px 6px;
       text-align: right;
-      white-space: nowrap;
+      white-space: normal;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
     }
     .modal th {
       background: #f1f5f9;
       font-weight: 600;
       color: #334155;
-      position: sticky;
-      top: 0;
-      z-index: 1;
     }
     .modal tr:last-child td { border-bottom: none; }
     .modal tr:hover td { background: #f8fafc; }
-    .modal td.message-cell { white-space: normal; max-width: 160px; }
+    .modal td.message-cell { max-width: none; }
     .modal-close {
       width: 100%;
       margin-top: 16px;
