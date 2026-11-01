@@ -489,7 +489,7 @@
       <div class="form-group">
         <label>نام و نام خانوادگی</label>
         <div class="input-row">
-          <input type="text" id="name" placeholder="نام را بگویید یا بنویسید" required>
+          <input type="text" id="name" placeholder="نام را بگویید یا بنویسید">
           <button type="button" class="mic-btn" data-target="name">🎤</button>
         </div>
       </div>
@@ -520,7 +520,7 @@
 
       <div class="status" id="status">آماده دریافت صدا...</div>
 
-      <button type="submit" class="btn btn-save" id="btnSave" disabled>✅ ثبت و رکورد بعدی</button>
+      <button type="button" class="btn btn-save" id="btnSave" disabled>✅ ثبت و رکورد بعدی</button>
       <button type="button" class="btn btn-view" onclick="openRecordsModal()">📋 مشاهده اطلاعات ذخیره شده</button>
       <button type="button" class="btn btn-download" onclick="downloadExcel()">📥 دانلود همه اطلاعات (اکسل)</button>
       <button type="button" class="btn btn-clear" onclick="clearData()">🗑️ پاک کردن همه اطلاعات</button>
@@ -713,74 +713,100 @@
       });
     });
 
-    document.getElementById('voiceForm').addEventListener('submit', function(e) {
-      e.preventDefault();
+    function resetFormFields() {
+      document.getElementById('voiceForm').reset();
+      document.getElementById('preview').style.display = 'none';
+      document.getElementById('preview').src = '';
+      document.getElementById('btnDownloadPhoto').style.display = 'none';
+      document.getElementById('photo').value = '';
+      photoName = '';
+      photoBase64 = '';
+      const genderMale = document.querySelector('input[name="gender"][value="آقا"]');
+      if (genderMale) genderMale.checked = true;
+      checkNameFilled();
+    }
 
-      const personName = document.getElementById('name').value.trim();
+    function saveRecord() {
+      const personName = (document.getElementById('name').value || '').trim();
       if (!personName) {
         alert('لطفاً نام و نام خانوادگی را وارد کنید');
         return;
       }
 
-      const gender = document.querySelector('input[name="gender"]:checked')?.value || '-';
+      const genderEl = document.querySelector('input[name="gender"]:checked');
+      const gender = genderEl ? genderEl.value : 'آقا';
       const photoFileName = makePhotoFileName(personName);
-
       const hadPhoto = !!photoBase64;
-      if (hadPhoto) {
-        downloadPhoto(photoBase64, photoFileName);
-      }
 
       const record = {
         gender: gender,
         name: personName,
-        phone: document.getElementById('phone').value || '-',
-        subject: document.getElementById('subject').value || '-',
-        message: document.getElementById('message').value || '-',
+        phone: (document.getElementById('phone').value || '').trim() || '-',
+        subject: (document.getElementById('subject').value || '').trim() || '-',
+        message: (document.getElementById('message').value || '').trim() || '-',
         photo: photoFileName,
         photoData: photoBase64 || '',
         date: new Date().toLocaleString('fa-IR'),
         timestamp: Date.now()
       };
 
-      const records = JSON.parse(localStorage.getItem('formRecords') || '[]');
+      let records = [];
+      try {
+        records = JSON.parse(localStorage.getItem('formRecords') || '[]');
+      } catch (e) {
+        records = [];
+      }
       records.push(record);
+
+      let saved = false;
+      let savedWithoutPhoto = false;
 
       try {
         localStorage.setItem('formRecords', JSON.stringify(records));
+        saved = true;
       } catch (err) {
-        // اگر فضای حافظه پر شد (معمولاً به‌خاطر عکس)، بدون عکس ذخیره کن
+        // فضای حافظه پر → بدون عکس امتحان کن
         records[records.length - 1].photoData = '';
         try {
           localStorage.setItem('formRecords', JSON.stringify(records));
-          alert('رکورد ثبت شد، ولی فضای حافظه برای ذخیره عکس کافی نبود.\nعکس فقط دانلود شد.');
+          saved = true;
+          savedWithoutPhoto = true;
         } catch (err2) {
-          records.pop();
-          alert('خطا در ذخیره: فضای حافظه مرورگر پر است.\nچند رکورد قدیمی را حذف کنید و دوباره تلاش کنید.');
+          alert('خطا در ذخیره: فضای حافظه مرورگر پر است.\nاز دکمه «پاک کردن همه اطلاعات» استفاده کنید یا چند رکورد را حذف کنید.');
           return;
         }
-        document.getElementById('voiceForm').reset();
-        document.getElementById('preview').style.display = 'none';
-        document.getElementById('btnDownloadPhoto').style.display = 'none';
-        photoName = '';
-        photoBase64 = '';
-        document.querySelector('input[name="gender"][value="آقا"]').checked = true;
-        checkNameFilled();
-        updateCounter();
+      }
+
+      if (!saved) {
+        alert('ثبت انجام نشد. دوباره تلاش کنید.');
         return;
       }
 
-      document.getElementById('voiceForm').reset();
-      document.getElementById('preview').style.display = 'none';
-      document.getElementById('btnDownloadPhoto').style.display = 'none';
-      photoName = '';
-      photoBase64 = '';
-      document.querySelector('input[name="gender"][value="آقا"]').checked = true;
-      checkNameFilled();
+      // دانلود عکس بعد از ذخیره موفق (خطایش ثبت را خراب نکند)
+      if (hadPhoto && photoBase64) {
+        try {
+          downloadPhoto(photoBase64, photoFileName);
+        } catch (e) {}
+      }
 
+      resetFormFields();
       updateCounter();
-      alert(hadPhoto
-        ? 'رکورد ثبت شد\nعکس هم با نام «' + photoFileName + '» ذخیره شد'
-        : 'رکورد ثبت شد');
+
+      if (savedWithoutPhoto) {
+        alert('رکورد ثبت شد، ولی فضای کافی برای ذخیره عکس در حافظه نبود.');
+      } else if (hadPhoto) {
+        alert('رکورد ثبت شد\nعکس هم با نام «' + photoFileName + '» ذخیره شد');
+      } else {
+        alert('رکورد ثبت شد');
+      }
+    }
+
+    document.getElementById('btnSave').addEventListener('click', saveRecord);
+
+    // جلوگیری از submit پیش‌فرض فرم
+    document.getElementById('voiceForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      saveRecord();
     });
 
     function downloadExcel() {
