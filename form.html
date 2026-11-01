@@ -253,6 +253,38 @@
       font-size: 1.2rem;
       color: #0f172a;
     }
+    .sort-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+    .sort-label {
+      font-size: 0.88rem;
+      color: #64748b;
+      font-weight: 600;
+    }
+    .sort-btn {
+      border: 1.5px solid #e2e8f0;
+      background: #f8fafc;
+      color: #475569;
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .sort-btn.active {
+      background: #e0e7ff;
+      border-color: #818cf8;
+      color: #4338ca;
+    }
+    .sort-btn:hover:not(.active) {
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+    }
     .modal-table-wrap {
       display: flex;
       flex-direction: column;
@@ -472,6 +504,11 @@
   <div class="modal-overlay" id="recordsModal">
     <div class="modal">
       <h2>اطلاعات ذخیره شده</h2>
+      <div class="sort-bar" id="sortBar" style="display:none;">
+        <span class="sort-label">مرتب‌سازی:</span>
+        <button type="button" class="sort-btn active" id="sortNewest" onclick="setSortOrder('newest')">جدیدترین</button>
+        <button type="button" class="sort-btn" id="sortOldest" onclick="setSortOrder('oldest')">قدیمی‌ترین</button>
+      </div>
       <div class="modal-table-wrap" id="recordsTableWrap"></div>
       <button type="button" class="modal-close" onclick="closeRecordsModal()">بستن</button>
     </div>
@@ -535,6 +572,7 @@
     let photoName = '';
     let photoBase64 = '';
     let editingIndex = -1;
+    let sortOrder = 'newest'; // newest | oldest
 
     document.getElementById('photo').addEventListener('change', function(e) {
       const file = e.target.files[0];
@@ -644,7 +682,8 @@
         subject: document.getElementById('subject').value || '-',
         message: document.getElementById('message').value || '-',
         photo: photoFileName,
-        date: new Date().toLocaleString('fa-IR')
+        date: new Date().toLocaleString('fa-IR'),
+        timestamp: Date.now()
       };
 
       const records = JSON.parse(localStorage.getItem('formRecords') || '[]');
@@ -686,19 +725,39 @@
       }
     }
 
+    function setSortOrder(order) {
+      sortOrder = order;
+      document.getElementById('sortNewest').classList.toggle('active', order === 'newest');
+      document.getElementById('sortOldest').classList.toggle('active', order === 'oldest');
+      openRecordsModal();
+    }
+
     function openRecordsModal() {
       const records = JSON.parse(localStorage.getItem('formRecords') || '[]');
       const wrap = document.getElementById('recordsTableWrap');
+      const sortBar = document.getElementById('sortBar');
 
       if (records.length === 0) {
+        sortBar.style.display = 'none';
         wrap.innerHTML = '<p class="modal-empty">هنوز رکوردی ذخیره نشده است.</p>';
       } else {
+        sortBar.style.display = 'flex';
+
+        // نگه‌داشتن ایندکس اصلی برای ویرایش/حذف
+        let indexed = records.map((r, i) => ({ ...r, _origIndex: i }));
+
+        indexed.sort((a, b) => {
+          const ta = a.timestamp || a._origIndex;
+          const tb = b.timestamp || b._origIndex;
+          return sortOrder === 'newest' ? (tb - ta) : (ta - tb);
+        });
+
         let html = '';
-        records.forEach((r, i) => {
+        indexed.forEach((r, displayNum) => {
           html += `<div class="record-card">
             <div class="record-card-header">
               <div class="record-card-title">${r.name || '-'}</div>
-              <span class="record-card-num">#${i + 1}</span>
+              <span class="record-card-num">#${displayNum + 1}</span>
             </div>
             <div class="record-card-row"><span class="record-card-label">جنسیت:</span><span class="record-card-value">${r.gender || '-'}</span></div>
             <div class="record-card-row"><span class="record-card-label">تماس:</span><span class="record-card-value">${r.phone || '-'}</span></div>
@@ -707,7 +766,7 @@
             <div class="record-card-row"><span class="record-card-label">عکس:</span><span class="record-card-value">${r.photo || '-'}</span></div>
             <div class="record-card-row"><span class="record-card-label">تاریخ:</span><span class="record-card-value">${r.date || '-'}</span></div>
             <div class="record-card-actions">
-              <button type="button" class="btn-edit" onclick="openEditModal(${i})">✏️ ویرایش / حذف</button>
+              <button type="button" class="btn-edit" onclick="openEditModal(${r._origIndex})">✏️ ویرایش / حذف</button>
             </div>
           </div>`;
         });
