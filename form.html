@@ -601,13 +601,41 @@
     let editingIndex = -1;
     let sortOrder = 'newest'; // newest | oldest
 
+    function compressImage(dataUrl, maxSize, quality) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = function() {
+          let w = img.width;
+          let h = img.height;
+          if (w > maxSize || h > maxSize) {
+            if (w > h) {
+              h = Math.round(h * maxSize / w);
+              w = maxSize;
+            } else {
+              w = Math.round(w * maxSize / h);
+              h = maxSize;
+            }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = function() { resolve(dataUrl); };
+        img.src = dataUrl;
+      });
+    }
+
     document.getElementById('photo').addEventListener('change', function(e) {
       const file = e.target.files[0];
       if (file) {
         photoName = file.name;
         const reader = new FileReader();
-        reader.onload = function(event) {
-          photoBase64 = event.target.result;
+        reader.onload = async function(event) {
+          // فشرده‌سازی عکس برای جلوگیری از پر شدن حافظه
+          photoBase64 = await compressImage(event.target.result, 600, 0.7);
           const preview = document.getElementById('preview');
           preview.src = photoBase64;
           preview.style.display = 'block';
@@ -716,7 +744,30 @@
 
       const records = JSON.parse(localStorage.getItem('formRecords') || '[]');
       records.push(record);
-      localStorage.setItem('formRecords', JSON.stringify(records));
+
+      try {
+        localStorage.setItem('formRecords', JSON.stringify(records));
+      } catch (err) {
+        // اگر فضای حافظه پر شد (معمولاً به‌خاطر عکس)، بدون عکس ذخیره کن
+        records[records.length - 1].photoData = '';
+        try {
+          localStorage.setItem('formRecords', JSON.stringify(records));
+          alert('رکورد ثبت شد، ولی فضای حافظه برای ذخیره عکس کافی نبود.\nعکس فقط دانلود شد.');
+        } catch (err2) {
+          records.pop();
+          alert('خطا در ذخیره: فضای حافظه مرورگر پر است.\nچند رکورد قدیمی را حذف کنید و دوباره تلاش کنید.');
+          return;
+        }
+        document.getElementById('voiceForm').reset();
+        document.getElementById('preview').style.display = 'none';
+        document.getElementById('btnDownloadPhoto').style.display = 'none';
+        photoName = '';
+        photoBase64 = '';
+        document.querySelector('input[name="gender"][value="آقا"]').checked = true;
+        checkNameFilled();
+        updateCounter();
+        return;
+      }
 
       document.getElementById('voiceForm').reset();
       document.getElementById('preview').style.display = 'none';
