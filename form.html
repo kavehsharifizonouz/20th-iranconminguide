@@ -466,6 +466,8 @@
       margin-top: 12px;
       padding-top: 10px;
       border-top: 1px solid #e2e8f0;
+      display: flex;
+      gap: 8px;
     }
     .modal-close {
       width: 100%;
@@ -497,12 +499,28 @@
       font-size: 0.88rem;
       cursor: pointer;
       font-weight: 600;
-      width: 100%;
+      flex: 1;
       transition: transform 0.15s, box-shadow 0.15s;
     }
     .btn-edit:hover {
       transform: scale(1.02);
       box-shadow: 0 2px 8px rgba(14, 165, 233, 0.35);
+    }
+    .btn-delete-card {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 9px 14px;
+      font-size: 0.88rem;
+      cursor: pointer;
+      font-weight: 600;
+      flex: 1;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-delete-card:hover {
+      transform: scale(1.02);
+      box-shadow: 0 2px 8px rgba(220, 38, 38, 0.35);
     }
 
     /* مودال ویرایش */
@@ -674,7 +692,6 @@
         <input type="text" id="editPhoto" placeholder="نام فایل عکس">
       </div>
       <button type="button" class="btn-save-edit" onclick="saveEditedRecord()">💾 ذخیره تغییرات</button>
-      <button type="button" class="btn-delete-edit" onclick="deleteRecord()">🗑️ حذف این رکورد</button>
       <button type="button" class="btn-cancel-edit" onclick="closeEditModal()">انصراف</button>
     </div>
   </div>
@@ -981,7 +998,8 @@
             <div class="record-card-row"><span class="record-card-label">پیام:</span><span class="record-card-value">${r.message || '-'}</span></div>
             <div class="record-card-row"><span class="record-card-label">تاریخ:</span><span class="record-card-value">${r.date || '-'}</span></div>
             <div class="record-card-actions">
-              <button type="button" class="btn-edit" onclick="openEditModal(${r._origIndex})">✏️ ویرایش / حذف</button>
+              <button type="button" class="btn-edit" onclick="openEditModal(${r._origIndex})">✏️ ویرایش</button>
+              <button type="button" class="btn-delete-card" onclick="deleteRecord(${r._origIndex})">🗑️ حذف</button>
             </div>
           </div>`;
         });
@@ -1064,15 +1082,17 @@
       alert('تغییرات ذخیره شد');
     }
 
-    function deleteRecord() {
-      if (editingIndex < 0) return;
+    function deleteRecord(index) {
+      // اگر از مودال ویرایش صدا زده شود، از editingIndex استفاده کن
+      const idx = (typeof index === 'number') ? index : editingIndex;
+      if (idx < 0) return;
 
       if (!confirm('آیا از حذف این رکورد مطمئن هستید؟')) return;
 
       const records = JSON.parse(localStorage.getItem('formRecords') || '[]');
-      if (editingIndex >= records.length) return;
+      if (idx >= records.length) return;
 
-      records.splice(editingIndex, 1);
+      records.splice(idx, 1);
       localStorage.setItem('formRecords', JSON.stringify(records));
 
       closeEditModal();
