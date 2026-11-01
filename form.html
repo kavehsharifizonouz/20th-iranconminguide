@@ -156,6 +156,18 @@
       cursor: pointer;
       margin-top: 8px;
     }
+    .btn-delete-edit {
+      background: #dc2626;
+      color: white;
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 8px;
+    }
   </style>
 </head>
 <body>
@@ -270,6 +282,7 @@
         <input type="text" id="editPhoto" placeholder="نام فایل عکس">
       </div>
       <button type="button" class="btn-save-edit" onclick="saveEditedRecord()">💾 ذخیره تغییرات</button>
+      <button type="button" class="btn-delete-edit" onclick="deleteRecord()">🗑️ حذف این رکورد</button>
       <button type="button" class="btn-cancel-edit" onclick="closeEditModal()">انصراف</button>
     </div>
   </div>
@@ -550,6 +563,23 @@
       openRecordsModal(); // جدول را با داده‌های جدید رفرش کن
       updateCounter();
       alert('تغییرات ذخیره شد');
+    }
+
+    function deleteRecord() {
+      if (editingIndex < 0) return;
+
+      if (!confirm('آیا از حذف این رکورد مطمئن هستید؟')) return;
+
+      const records = JSON.parse(localStorage.getItem('formRecords') || '[]');
+      if (editingIndex >= records.length) return;
+
+      records.splice(editingIndex, 1);
+      localStorage.setItem('formRecords', JSON.stringify(records));
+
+      closeEditModal();
+      openRecordsModal();
+      updateCounter();
+      alert('رکورد حذف شد');
     }
   </script>
 </body>
