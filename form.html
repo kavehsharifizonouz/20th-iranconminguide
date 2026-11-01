@@ -46,6 +46,11 @@
     .status.listening { color: #ef4444; font-weight: bold; }
     .btn { width: 100%; padding: 13px; border: none; border-radius: 10px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 8px; }
     .btn-save { background: #16a34a; color: white; }
+    .btn-save:disabled {
+      background: #94a3b8;
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
     .btn-download { background: #2563eb; color: white; }
     .btn-view { background: #7c3aed; color: white; }
     .btn-photo { background: #d97706; color: white; }
@@ -100,6 +105,57 @@
       cursor: pointer;
     }
     .modal-empty { text-align: center; color: #666; padding: 30px 0; }
+
+    .btn-edit {
+      background: #0ea5e9;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .btn-edit:hover { background: #0284c7; }
+
+    /* مودال ویرایش */
+    #editModal .modal { max-width: 480px; }
+    #editModal .form-group { margin-bottom: 14px; }
+    #editModal input,
+    #editModal textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 10px;
+      font-size: 1rem;
+      background: #fafafa;
+    }
+    #editModal textarea { min-height: 90px; resize: vertical; }
+    #editModal .gender-box { margin-top: 6px; }
+    .btn-save-edit {
+      background: #16a34a;
+      color: white;
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+    .btn-cancel-edit {
+      background: #64748b;
+      color: white;
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 8px;
+    }
   </style>
 </head>
 <body>
@@ -135,7 +191,7 @@
       <div class="form-group">
         <label>نام و نام خانوادگی</label>
         <div class="input-row">
-          <input type="text" id="name" placeholder="نام را بگویید یا بنویسید">
+          <input type="text" id="name" placeholder="نام را بگویید یا بنویسید" required>
           <button type="button" class="mic-btn" data-target="name">🎤</button>
         </div>
       </div>
@@ -166,7 +222,7 @@
 
       <div class="status" id="status">آماده دریافت صدا...</div>
 
-      <button type="submit" class="btn btn-save">✅ ثبت و رکورد بعدی</button>
+      <button type="submit" class="btn btn-save" id="btnSave" disabled>✅ ثبت و رکورد بعدی</button>
       <button type="button" class="btn btn-view" onclick="openRecordsModal()">📋 مشاهده اطلاعات ذخیره شده</button>
       <button type="button" class="btn btn-download" onclick="downloadExcel()">📥 دانلود همه اطلاعات (اکسل)</button>
       <button type="button" class="btn btn-clear" onclick="clearData()">🗑️ پاک کردن همه اطلاعات</button>
@@ -182,6 +238,42 @@
     </div>
   </div>
 
+  <!-- مودال ویرایش رکورد -->
+  <div class="modal-overlay" id="editModal">
+    <div class="modal">
+      <h2>ویرایش اطلاعات</h2>
+      <div class="form-group">
+        <label>جنسیت</label>
+        <div class="gender-box">
+          <label><input type="radio" name="editGender" value="آقا" id="editGenderMale"> آقا</label>
+          <label><input type="radio" name="editGender" value="خانم" id="editGenderFemale"> خانم</label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>نام و نام خانوادگی</label>
+        <input type="text" id="editName" placeholder="نام و نام خانوادگی">
+      </div>
+      <div class="form-group">
+        <label>شماره تماس</label>
+        <input type="tel" id="editPhone" placeholder="شماره تماس">
+      </div>
+      <div class="form-group">
+        <label>موضوع</label>
+        <input type="text" id="editSubject" placeholder="موضوع">
+      </div>
+      <div class="form-group">
+        <label>پیام</label>
+        <textarea id="editMessage" placeholder="متن پیام..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>نام فایل عکس (قابل ویرایش)</label>
+        <input type="text" id="editPhoto" placeholder="نام فایل عکس">
+      </div>
+      <button type="button" class="btn-save-edit" onclick="saveEditedRecord()">💾 ذخیره تغییرات</button>
+      <button type="button" class="btn-cancel-edit" onclick="closeEditModal()">انصراف</button>
+    </div>
+  </div>
+
   <script>
     function updateCounter() {
       const data = JSON.parse(localStorage.getItem('formRecords') || '[]');
@@ -189,8 +281,22 @@
     }
     updateCounter();
 
+    // ---- الزام پر بودن نام برای فعال شدن دکمه ثبت ----
+    const nameInput = document.getElementById('name');
+    const btnSave = document.getElementById('btnSave');
+
+    function checkNameFilled() {
+      const filled = nameInput.value.trim().length > 0;
+      btnSave.disabled = !filled;
+    }
+    nameInput.addEventListener('input', checkNameFilled);
+    nameInput.addEventListener('change', checkNameFilled);
+    // بعد از تشخیص صدا هم چک شود
+    const originalOnResult = null;
+
     let photoName = '';
     let photoBase64 = '';
+    let editingIndex = -1;
 
     document.getElementById('photo').addEventListener('change', function(e) {
       const file = e.target.files[0];
@@ -249,6 +355,7 @@
         const text = e.results[0][0].transcript;
         const field = document.getElementById(currentTarget);
         field.value = field.value ? field.value + ' ' + text : text;
+        if (currentTarget === 'name') checkNameFilled();
       };
 
       recog.onerror = (e) => {
@@ -278,8 +385,13 @@
     document.getElementById('voiceForm').addEventListener('submit', function(e) {
       e.preventDefault();
 
+      const personName = document.getElementById('name').value.trim();
+      if (!personName) {
+        alert('لطفاً نام و نام خانوادگی را وارد کنید');
+        return;
+      }
+
       const gender = document.querySelector('input[name="gender"]:checked')?.value || '-';
-      const personName = document.getElementById('name').value.trim() || 'بدون_نام';
       const photoFileName = makePhotoFileName(personName);
 
       const hadPhoto = !!photoBase64;
@@ -307,6 +419,7 @@
       photoName = '';
       photoBase64 = '';
       document.querySelector('input[name="gender"][value="آقا"]').checked = true;
+      checkNameFilled();
 
       updateCounter();
       alert(hadPhoto
@@ -343,7 +456,7 @@
         wrap.innerHTML = '<p class="modal-empty">هنوز رکوردی ذخیره نشده است.</p>';
       } else {
         let html = '<table><thead><tr>';
-        html += '<th>#</th><th>جنسیت</th><th>نام</th><th>تماس</th><th>موضوع</th><th>پیام</th><th>عکس</th><th>تاریخ</th>';
+        html += '<th>#</th><th>جنسیت</th><th>نام</th><th>تماس</th><th>موضوع</th><th>پیام</th><th>عکس</th><th>تاریخ</th><th>عملیات</th>';
         html += '</tr></thead><tbody>';
         records.forEach((r, i) => {
           html += '<tr>';
@@ -355,6 +468,7 @@
           html += `<td class="message-cell">${r.message || '-'}</td>`;
           html += `<td>${r.photo || '-'}</td>`;
           html += `<td>${r.date || '-'}</td>`;
+          html += `<td><button type="button" class="btn-edit" onclick="openEditModal(${i})">✏️ ویرایش</button></td>`;
           html += '</tr>';
         });
         html += '</tbody></table>';
@@ -370,6 +484,73 @@
     document.getElementById('recordsModal').addEventListener('click', function(e) {
       if (e.target === this) closeRecordsModal();
     });
+
+    // ---- ویرایش رکورد ----
+    function openEditModal(index) {
+      const records = JSON.parse(localStorage.getItem('formRecords') || '[]');
+      if (index < 0 || index >= records.length) return;
+
+      editingIndex = index;
+      const r = records[index];
+
+      if (r.gender === 'خانم') {
+        document.getElementById('editGenderFemale').checked = true;
+      } else {
+        document.getElementById('editGenderMale').checked = true;
+      }
+      document.getElementById('editName').value = r.name === '-' ? '' : (r.name || '');
+      document.getElementById('editPhone').value = r.phone === '-' ? '' : (r.phone || '');
+      document.getElementById('editSubject').value = r.subject === '-' ? '' : (r.subject || '');
+      document.getElementById('editMessage').value = r.message === '-' ? '' : (r.message || '');
+      document.getElementById('editPhoto').value = r.photo || '';
+
+      document.getElementById('editModal').classList.add('show');
+    }
+
+    function closeEditModal() {
+      document.getElementById('editModal').classList.remove('show');
+      editingIndex = -1;
+    }
+
+    document.getElementById('editModal').addEventListener('click', function(e) {
+      if (e.target === this) closeEditModal();
+    });
+
+    function saveEditedRecord() {
+      if (editingIndex < 0) return;
+
+      const nameVal = document.getElementById('editName').value.trim();
+      if (!nameVal) {
+        alert('نام و نام خانوادگی نمی‌تواند خالی باشد');
+        return;
+      }
+
+      const records = JSON.parse(localStorage.getItem('formRecords') || '[]');
+      if (editingIndex >= records.length) return;
+
+      const gender = document.querySelector('input[name="editGender"]:checked')?.value || 'آقا';
+      const phone = document.getElementById('editPhone').value.trim() || '-';
+      const subject = document.getElementById('editSubject').value.trim() || '-';
+      const message = document.getElementById('editMessage').value.trim() || '-';
+      let photo = document.getElementById('editPhoto').value.trim() || makePhotoFileName(nameVal);
+
+      records[editingIndex] = {
+        ...records[editingIndex],
+        gender: gender,
+        name: nameVal,
+        phone: phone,
+        subject: subject,
+        message: message,
+        photo: photo
+        // تاریخ ثبت تغییر نمی‌کند
+      };
+
+      localStorage.setItem('formRecords', JSON.stringify(records));
+      closeEditModal();
+      openRecordsModal(); // جدول را با داده‌های جدید رفرش کن
+      updateCounter();
+      alert('تغییرات ذخیره شد');
+    }
   </script>
 </body>
 </html>
