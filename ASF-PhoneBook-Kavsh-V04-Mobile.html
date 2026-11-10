@@ -407,7 +407,41 @@
     .edit-table .num-col { direction: ltr; text-align: center; width: 110px; }
     .edit-table .type-col { width: 130px; min-width: 120px; }
     .edit-table .code-col { width: 100px; }
-    .edit-table .actions-col { width: 50px; text-align: center; }
+    .edit-table .actions-col { width: 56px; min-width: 56px; text-align: center; }
+
+    .edit-table .actions-col {
+      position: sticky;
+      left: 0;
+      z-index: 2;
+      background: var(--card);
+      box-shadow: 4px 0 8px rgba(0,0,0,.06);
+    }
+    .edit-table thead th.actions-col {
+      z-index: 3;
+      background: linear-gradient(90deg, #0B1D36, #163A5F);
+    }
+    [data-theme="dark"] .edit-table .actions-col {
+      background: var(--card);
+    }
+    [data-theme="dark"] .edit-table thead th.actions-col {
+      background: linear-gradient(90deg, #0B1D36, #FF5A00);
+    }
+    .edit-table .btn-del {
+      width: 34px; height: 34px;
+      border-radius: 8px;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 1.15rem; font-weight: 700;
+      background: var(--danger-bg);
+      border: 1px solid var(--danger);
+      color: var(--danger);
+    }
+    .edit-table tr.row-new .actions-col {
+      background: #FFF4E5;
+    }
+    [data-theme="dark"] .edit-table tr.row-new .actions-col {
+      background: #3D2410;
+    }
+
     .edit-table .btn-del { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 1.1rem; padding: 2px 6px; }
     .edit-table .btn-del:hover { background: var(--danger-bg); border-radius: 4px; }
 
@@ -795,7 +829,7 @@
       .edit-table .type-col { width: 130px; min-width: 120px; }
       .edit-table .code-col { width: 100px; min-width: 100px; }
       .edit-table .num-col { width: 120px; min-width: 120px; }
-      .edit-table .actions-col { width: 48px; min-width: 48px; }
+      .edit-table .actions-col { width: 56px; min-width: 56px; }
       .edit-table input,
       .edit-table select {
         min-width: 0;
@@ -916,23 +950,146 @@
 
 
 
-    /* Phone landscape: ensure edit table shows at least ~2 data rows */
+    /* Phone landscape: keep middle content visible (header/footer were eating all height) */
     @media (max-width: 900px) and (orientation: landscape) {
+      /* Give the scroll area a real share of the short viewport */
+      html, body {
+        height: 100%;
+        height: 100dvh;
+        max-height: 100dvh;
+      }
+      body {
+        overflow: hidden;
+      }
+      .scroll-area {
+        flex: 1 1 0 !important;
+        min-height: 0 !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      /* Compact header so content isn't pushed off-screen */
+      .header {
+        padding: 4px 8px 6px !important;
+        flex-shrink: 0;
+      }
+      .header-top {
+        margin-bottom: 2px !important;
+      }
+      .header h1 {
+        font-size: 0.92rem !important;
+        margin-bottom: 0 !important;
+        line-height: 1.25;
+      }
+      .header .subtitle {
+        display: none !important;
+      }
+      .header .meta {
+        display: none !important;
+      }
+      .header .search-box {
+        margin-top: 4px !important;
+        padding: 4px 10px !important;
+        max-width: 100% !important;
+      }
+      .header .search-box input {
+        font-size: 0.85rem !important;
+      }
+      .header .tabs {
+        margin-top: 4px !important;
+        gap: 4px !important;
+      }
+      .header .tab {
+        padding: 3px 10px !important;
+        font-size: 0.72rem !important;
+      }
+
+      /* Slim footer */
+      .footer {
+        padding: 4px 8px !important;
+        font-size: 0.6rem !important;
+        flex-shrink: 0;
+      }
+      .footer .address {
+        display: none !important;
+      }
+
+      /* Less bottom padding — float dock is smaller in landscape */
+      .container {
+        padding: 4px 10px 56px !important;
+      }
+
+      /* Admin sticky bar more compact */
+      .admin-sticky-bar {
+        padding: 4px 10px !important;
+      }
+      .admin-sticky-bar .asb-sub {
+        display: none !important;
+      }
+      .admin-sticky-bar .asb-title {
+        font-size: 0.8rem !important;
+      }
+      .admin-sticky-bar .asb-btn {
+        padding: 6px 10px !important;
+        font-size: 0.75rem !important;
+      }
+
+      /* Unit / card headers a bit shorter */
+      .unit-header,
+      .card-group .group-label {
+        min-height: 38px !important;
+        padding: 6px 10px !important;
+      }
+      .unit-header h2,
+      .card-group .group-label h2 {
+        font-size: 0.78rem !important;
+      }
+
+      /* Float controls: keep out of the way */
+      .float-controls {
+        bottom: 6px !important;
+        height: 24px !important;
+        padding: 0 14px !important;
+      }
+      .float-controls.open {
+        height: 46px !important;
+        padding: 4px 10px !important;
+      }
+      .float-controls.open .float-btn {
+        width: 36px !important;
+        height: 36px !important;
+      }
+
+      /* Edit table usable height in landscape */
       .edit-table-wrap {
         max-height: none !important;
-        min-height: 140px; /* header + filter + ~2 rows */
+        min-height: 120px;
         height: auto;
       }
       #view-admin .admin-panel {
-        padding-bottom: 24px;
+        padding: 10px !important;
+        padding-bottom: 16px !important;
+        margin-bottom: 8px !important;
       }
       .edit-table tbody tr {
-        min-height: 40px;
+        min-height: 36px;
       }
       .edit-table td,
       .edit-table th {
-        padding-top: 8px;
-        padding-bottom: 8px;
+        padding-top: 6px;
+        padding-bottom: 6px;
+      }
+      .admin-section {
+        margin-bottom: 12px !important;
+        padding-bottom: 10px !important;
+      }
+      .stats {
+        gap: 6px !important;
+        margin-bottom: 8px !important;
+      }
+      .stat-card {
+        padding: 6px 10px !important;
+        font-size: 0.75rem !important;
       }
     }
 
@@ -3327,7 +3484,13 @@ function renderEditTable() {
   let rows = flatRows();
   rows = rows.map((r, i) => Object.assign({}, r, { _i: i }));
   rows = rows.filter(r => {
-    if (filters.type && r.type !== filters.type) return false;
+    if (filters.type) {
+      const sameVal = r.type === filters.type;
+      const sameLabel = normalize(typeLabel(r.type) || "") === normalize(filters.type)
+        || normalize(typeLabel(r.type) || "").includes(filters.type)
+        || normalize(r.type).includes(filters.type);
+      if (!sameVal && !sameLabel) return false;
+    }
     if (filters.title && !normalize(r.title).includes(filters.title)) return false;
     if (filters.code && !normalize(r.code).includes(filters.code)) return false;
     if (filters.number && !normalize(r.number).includes(filters.number)) return false;
@@ -3347,21 +3510,32 @@ function renderEditTable() {
   `).join("");
 
   tbody.querySelectorAll(".btn-del").forEach(btn => {
-    btn.addEventListener("click", () => {
+    btn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      try { applyTableToData(); } catch (_) {}
       const idx = +btn.dataset.del;
       const allRows = flatRows();
+      if (idx < 0 || idx >= allRows.length) {
+        await uiAlert("این رکورد پیدا نشد. صفحه را یک‌بار تازه کنید.", "حذف", "err");
+        return;
+      }
       const target = allRows[idx];
-      const label = target ? ((target.name || "") + " — " + (target.number || "")) : "";
-      (async () => {
-        const ok1 = await uiConfirm("آیا از حذف این رکورد مطمئن هستید؟\n" + label, "حذف رکورد", "danger");
-        if (!ok1) return;
-        const ok2 = await uiConfirm("تأیید نهایی: این رکورد حذف شود؟", "تأیید نهایی", "danger");
-        if (!ok2) return;
-        allRows.splice(idx, 1);
-        DATA.groups = rowsToGroups(allRows);
-        renderEditTable();
-        renderStats();
-      })();
+      const label = [target.name, target.number, typeLabel(target.type) || target.type, target.title]
+        .filter(Boolean).join(" — ");
+      const ok = await uiConfirm(
+        "این رکورد حذف شود؟\n" + (label || "(خالی)"),
+        "حذف رکورد",
+        "danger"
+      );
+      if (!ok) return;
+      allRows.splice(idx, 1);
+      DATA.groups = rowsToGroups(allRows);
+      lastNewRowIndex = -1;
+      try { syncTypesFromData(); } catch (_) {}
+      renderEditTable();
+      renderStats();
+      showStatus("رکورد حذف شد. برای ماندگاری «ذخیره تغییرات» را بزنید.", "info");
     });
   });
   tbody.querySelectorAll('[data-field="code"], [data-field="number"]').forEach(inp => {
@@ -3415,13 +3589,18 @@ function readEditTable() {
 function rowsToGroups(rows) {
   const map = new Map();
   rows.forEach(r => {
-    const key = r.type + "||" + r.title + "||" + (r.code || "");
+    const type = r.type || "unit";
+    const title = (r.title || "").trim() || "بدون عنوان";
+    const code = r.code || "";
+    const key = type + "||" + title + "||" + code;
     if (!map.has(key)) {
-      map.set(key, { type: r.type, title: r.title, code: r.code || "", people: [] });
+      map.set(key, { type, title, code, people: [] });
     }
-    if (r.name || r.number) {
-      map.get(key).people.push({ number: r.number, name: r.name });
-    }
+    // always keep the person slot so blank/new rows stay editable & deletable
+    map.get(key).people.push({
+      number: r.number || "",
+      name: r.name || ""
+    });
   });
   return Array.from(map.values());
 }
