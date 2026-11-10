@@ -952,100 +952,56 @@
 
     /* Phone landscape: keep middle content visible (header/footer were eating all height) */
     @media (max-width: 900px) and (orientation: landscape) {
-      /* Give the scroll area a real share of the short viewport */
       html, body {
         height: 100%;
         height: 100dvh;
         max-height: 100dvh;
       }
-      body {
-        overflow: hidden;
-      }
+      body { overflow: hidden; }
       .scroll-area {
         flex: 1 1 0 !important;
         min-height: 0 !important;
         overflow-y: auto !important;
         -webkit-overflow-scrolling: touch;
       }
-
-      /* Compact header so content isn't pushed off-screen */
       .header {
         padding: 4px 8px 6px !important;
         flex-shrink: 0;
       }
-      .header-top {
-        margin-bottom: 2px !important;
-      }
+      .header-top { margin-bottom: 2px !important; }
       .header h1 {
         font-size: 0.92rem !important;
         margin-bottom: 0 !important;
         line-height: 1.25;
       }
-      .header .subtitle {
-        display: none !important;
-      }
-      .header .meta {
-        display: none !important;
-      }
+      .header .subtitle,
+      .header .meta { display: none !important; }
       .header .search-box {
         margin-top: 4px !important;
         padding: 4px 10px !important;
         max-width: 100% !important;
       }
-      .header .search-box input {
-        font-size: 0.85rem !important;
-      }
-      .header .tabs {
-        margin-top: 4px !important;
-        gap: 4px !important;
-      }
-      .header .tab {
-        padding: 3px 10px !important;
-        font-size: 0.72rem !important;
-      }
-
-      /* Slim footer */
+      .header .search-box input { font-size: 0.85rem !important; }
+      .header .tabs { margin-top: 4px !important; gap: 4px !important; }
+      .header .tab { padding: 3px 10px !important; font-size: 0.72rem !important; }
       .footer {
         padding: 4px 8px !important;
         font-size: 0.6rem !important;
         flex-shrink: 0;
       }
-      .footer .address {
-        display: none !important;
-      }
-
-      /* Less bottom padding — float dock is smaller in landscape */
-      .container {
-        padding: 4px 10px 56px !important;
-      }
-
-      /* Admin sticky bar more compact */
-      .admin-sticky-bar {
-        padding: 4px 10px !important;
-      }
-      .admin-sticky-bar .asb-sub {
-        display: none !important;
-      }
-      .admin-sticky-bar .asb-title {
-        font-size: 0.8rem !important;
-      }
-      .admin-sticky-bar .asb-btn {
-        padding: 6px 10px !important;
-        font-size: 0.75rem !important;
-      }
-
-      /* Unit / card headers a bit shorter */
+      .footer .address { display: none !important; }
+      .container { padding: 4px 10px 56px !important; }
+      .admin-sticky-bar { padding: 4px 10px !important; }
+      .admin-sticky-bar .asb-sub { display: none !important; }
+      .admin-sticky-bar .asb-title { font-size: 0.8rem !important; }
+      .admin-sticky-bar .asb-btn { padding: 6px 10px !important; font-size: 0.75rem !important; }
       .unit-header,
       .card-group .group-label {
         min-height: 38px !important;
         padding: 6px 10px !important;
       }
       .unit-header h2,
-      .card-group .group-label h2 {
-        font-size: 0.78rem !important;
-      }
-
-      /* Float controls: keep out of the way */
+      .card-group .group-label h2 { font-size: 0.78rem !important; }
       .float-controls {
         bottom: 6px !important;
         height: 24px !important;
@@ -1059,8 +1015,6 @@
         width: 36px !important;
         height: 36px !important;
       }
-
-      /* Edit table usable height in landscape */
       .edit-table-wrap {
         max-height: none !important;
         min-height: 120px;
@@ -1071,26 +1025,15 @@
         padding-bottom: 16px !important;
         margin-bottom: 8px !important;
       }
-      .edit-table tbody tr {
-        min-height: 36px;
-      }
+      .edit-table tbody tr { min-height: 36px; }
       .edit-table td,
-      .edit-table th {
-        padding-top: 6px;
-        padding-bottom: 6px;
-      }
+      .edit-table th { padding-top: 6px; padding-bottom: 6px; }
       .admin-section {
         margin-bottom: 12px !important;
         padding-bottom: 10px !important;
       }
-      .stats {
-        gap: 6px !important;
-        margin-bottom: 8px !important;
-      }
-      .stat-card {
-        padding: 6px 10px !important;
-        font-size: 0.75rem !important;
-      }
+      .stats { gap: 6px !important; margin-bottom: 8px !important; }
+      .stat-card { padding: 6px 10px !important; font-size: 0.75rem !important; }
     }
 
     /* View mode toggle */
@@ -1395,6 +1338,10 @@
       font-family: inherit; font-size: 0.82rem; font-weight: 700;
       cursor: pointer;
     }
+    .admin-sticky-bar .asb-btn.add {
+      background: rgba(255,255,255,0.14); color: #fff;
+      border: 1px solid rgba(255,255,255,0.25);
+    }
     .admin-sticky-bar .asb-btn.save {
       background: rgba(255,255,255,0.14); color: #fff;
       border: 1px solid rgba(255,255,255,0.25);
@@ -1415,7 +1362,8 @@
       .admin-sticky-bar .asb-title { font-size: 0.84rem; }
       .admin-sticky-bar .asb-sub { display: none; }
       .admin-sticky-bar .asb-btn { padding: 8px 10px; font-size: 0.78rem; }
-      .admin-sticky-bar .asb-btn.save span { display: none; }
+      .admin-sticky-bar .asb-btn.save span,
+      .admin-sticky-bar .asb-btn.add span { display: none; }
     }
 
     .float-btn.admin { color: #FF5A00; }
@@ -1542,6 +1490,12 @@
       <div class="asb-sub">ویرایش و ذخیره دفترچه تلفن</div>
     </div>
     <div class="asb-actions">
+      <button type="button" class="asb-btn add" id="btnAddRow" title="ردیف جدید">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        <span>ردیف جدید</span>
+      </button>
       <button type="button" class="asb-btn save" id="btnAdminSaveSticky" title="ذخیره تغییرات">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
         <span>ذخیره</span>
@@ -1681,10 +1635,6 @@
 
           <!-- Mobile card list -->
           <div class="edit-cards" id="editCards"></div>
-
-          <div class="add-row-bar">
-            <button class="btn primary" id="btnAddRow">+ ردیف جدید</button>
-          </div>
         </div>
 
         <div class="admin-exit-bar">
