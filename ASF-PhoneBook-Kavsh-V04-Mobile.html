@@ -288,6 +288,122 @@
     .add-row-bar { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 
     
+
+    /* Mobile stacked edit cards (portrait-friendly) */
+    .edit-mobile-filters {
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 10px;
+      padding: 10px;
+      background: var(--row-alt);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+    .edit-mobile-filters .emf-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .edit-mobile-filters label {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .edit-mobile-filters input,
+    .edit-mobile-filters select {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-family: inherit;
+      font-size: 0.88rem;
+      background: var(--input-bg);
+      color: var(--text);
+      box-sizing: border-box;
+    }
+    .edit-cards {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 55vh;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 2px;
+    }
+    .edit-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .edit-card .ec-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .edit-card .ec-row.ec-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .edit-card .ec-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+    .edit-card input,
+    .edit-card select {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 10px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      background: var(--input-bg);
+      color: var(--text);
+      box-sizing: border-box;
+    }
+    .edit-card input:focus,
+    .edit-card select:focus {
+      border-color: var(--accent);
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(255,90,0,.15);
+    }
+    .edit-card .ec-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 2px;
+    }
+    .edit-card .btn-del-card {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--danger);
+      background: var(--danger-bg);
+      color: var(--danger);
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .edit-card .btn-del-card:hover { opacity: 0.9; }
+    .edit-empty {
+      text-align: center;
+      padding: 24px 12px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
     /* ===== Tablet / Mobile ===== */
     @media (max-width: 900px) {
       #directoryRoot.table-mode {
@@ -489,7 +605,13 @@
       .stats { gap: 8px; }
       .stat-card { padding: 8px 12px; font-size: 0.8rem; }
       .btn { padding: 8px 12px; font-size: 0.8rem; }
-      .edit-table-wrap { max-height: 50vh; max-width: 100%; }
+      .edit-table-wrap { display: none !important; }
+      .edit-mobile-filters { display: flex !important; }
+      .edit-cards { display: flex !important; max-height: none; }
+      .admin-actions { flex-direction: column; align-items: stretch; }
+      .admin-actions .btn, .admin-actions .file-input-wrap { width: 100%; justify-content: center; }
+      .add-row-bar { flex-direction: column; align-items: stretch; }
+      .add-row-bar .btn { width: 100%; justify-content: center; }
 
       /* bottom handle dock */
       .float-controls {
@@ -1029,6 +1151,7 @@
               <input type="file" id="fileJson" accept=".json" />
             </label>
             <button class="btn warn" id="btnReset">بازگشت به داده اولیه</button>
+            <button class="btn danger" id="btnClearAll">خالی کردن تمام داده‌ها</button>
             <button class="btn success" id="btnSave">ذخیره تغییرات</button>
           </div>
           <div class="status-msg" id="statusMsg"></div>
@@ -1037,7 +1160,32 @@
         <!-- Table editor -->
         <div class="admin-section">
           <h3>✏️ ویرایش جدولی</h3>
-          <p class="hint" style="margin-bottom:8px;">مستقیماً در جدول ویرایش کنید، ردیف اضافه/حذف کنید، سپس «ذخیره تغییرات» را بزنید.</p>
+          <p class="hint" style="margin-bottom:8px;">مستقیماً ویرایش کنید، ردیف اضافه/حذف کنید، سپس «ذخیره تغییرات» را بزنید. در موبایل به‌صورت کارت عمودی نمایش داده می‌شود.</p>
+
+          <!-- Mobile filters (portrait) -->
+          <div class="edit-mobile-filters" id="editMobileFilters">
+            <div class="emf-row">
+              <label>نوع
+                <select id="fTypeM"><option value="">همه</option><option value="unit">واحد</option><option value="project">پروژه</option></select>
+              </label>
+              <label>کد واحد
+                <input type="search" id="fCodeM" placeholder="جستجو..." />
+              </label>
+            </div>
+            <div class="emf-row">
+              <label>واحد / پروژه
+                <input type="search" id="fTitleM" placeholder="جستجو..." />
+              </label>
+              <label>شماره داخلی
+                <input type="search" id="fNumberM" placeholder="جستجو..." style="direction:ltr;text-align:center" />
+              </label>
+            </div>
+            <label>نام و نام خانوادگی
+              <input type="search" id="fNameM" placeholder="جستجو..." />
+            </label>
+          </div>
+
+          <!-- Desktop table -->
           <div class="edit-table-wrap">
             <table class="edit-table" id="editTable">
               <thead>
@@ -1063,6 +1211,10 @@
               <tbody id="editTableBody"></tbody>
             </table>
           </div>
+
+          <!-- Mobile card list -->
+          <div class="edit-cards" id="editCards"></div>
+
           <div class="add-row-bar">
             <button class="btn primary" id="btnAddRow">+ ردیف جدید</button>
           </div>
@@ -2174,6 +2326,18 @@ function resetData() {
   renderAll();
 }
 
+function clearAllData() {
+  if (!confirm("تمام شماره‌ها و واحدها پاک شوند؟ این عمل قابل بازگشت نیست مگر با «بازگشت به داده اولیه».")) return;
+  if (!confirm("تأیید نهایی: همه داده‌ها خالی شوند؟")) return;
+  DATA = {
+    company: (DATA && DATA.company) ? DATA.company : DEFAULT_DATA.company,
+    groups: []
+  };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA));
+  showStatus("همه داده‌ها خالی شد.", "ok");
+  renderAll();
+}
+
 function showStatus(msg, type) {
   const el = document.getElementById("statusMsg");
   el.className = "status-msg " + type;
@@ -2217,7 +2381,7 @@ function bindPersianNumberInputs() {
     search.dataset.faBound = "1";
     search.addEventListener("input", persianizeTyping);
   }
-  document.querySelectorAll("#editTableBody input[data-field='code'], #editTableBody input[data-field='number'], #fCode, #fNumber").forEach(inp => {
+  document.querySelectorAll("#editTableBody input[data-field='code'], #editTableBody input[data-field='number'], #editCards input[data-field='code'], #editCards input[data-field='number'], #fCode, #fNumber, #fCodeM, #fNumberM").forEach(inp => {
     if (inp.dataset.faBound) return;
     inp.dataset.faBound = "1";
     inp.addEventListener("input", persianizeTyping);
@@ -2390,22 +2554,32 @@ function flatRows() {
   return rows;
 }
 
+function isMobileEdit() {
+  return window.matchMedia("(max-width: 768px)").matches;
+}
+
 function getEditFilters() {
+  const mobile = isMobileEdit();
+  const typeEl = document.getElementById(mobile ? "fTypeM" : "fType");
+  const titleEl = document.getElementById(mobile ? "fTitleM" : "fTitle");
+  const codeEl = document.getElementById(mobile ? "fCodeM" : "fCode");
+  const numberEl = document.getElementById(mobile ? "fNumberM" : "fNumber");
+  const nameEl = document.getElementById(mobile ? "fNameM" : "fName");
   return {
-    type: (document.getElementById("fType") || {}).value || "",
-    title: normalize((document.getElementById("fTitle") || {}).value || ""),
-    code: normalize((document.getElementById("fCode") || {}).value || ""),
-    number: normalize((document.getElementById("fNumber") || {}).value || ""),
-    name: normalize((document.getElementById("fName") || {}).value || "")
+    type: (typeEl && typeEl.value) || "",
+    title: normalize((titleEl && titleEl.value) || ""),
+    code: normalize((codeEl && codeEl.value) || ""),
+    number: normalize((numberEl && numberEl.value) || ""),
+    name: normalize((nameEl && nameEl.value) || "")
   };
 }
 
 function renderEditTable() {
   const tbody = document.getElementById("editTableBody");
-  if (!tbody) return;
+  const cardsRoot = document.getElementById("editCards");
+  if (!tbody && !cardsRoot) return;
   const filters = getEditFilters();
   let rows = flatRows();
-  // keep original index for delete
   rows = rows.map((r, i) => Object.assign({}, r, { _i: i }));
   rows = rows.filter(r => {
     if (filters.type && r.type !== filters.type) return false;
@@ -2415,7 +2589,10 @@ function renderEditTable() {
     if (filters.name && !normalize(r.name).includes(filters.name)) return false;
     return true;
   });
-  tbody.innerHTML = rows.map((r) => `
+
+  // Desktop table
+  if (tbody) {
+    tbody.innerHTML = rows.map((r) => `
     <tr data-idx="${r._i}">
       <td class="type-col">
         <select data-field="type">
@@ -2431,32 +2608,93 @@ function renderEditTable() {
     </tr>
   `).join("");
 
-  tbody.querySelectorAll(".btn-del").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const idx = +btn.dataset.del;
-      const allRows = flatRows();
-      const target = allRows[idx];
-      const label = target ? ((target.name || "") + " — " + (target.number || "")) : "";
-      if (!confirm("آیا از حذف این رکورد مطمئن هستید؟\n" + label)) return;
-      if (!confirm("تأیید نهایی: این رکورد حذف شود؟")) return;
-      allRows.splice(idx, 1);
-      DATA.groups = rowsToGroups(allRows);
-      renderEditTable();
-      renderStats();
+    tbody.querySelectorAll(".btn-del").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const idx = +btn.dataset.del;
+        const allRows = flatRows();
+        const target = allRows[idx];
+        const label = target ? ((target.name || "") + " — " + (target.number || "")) : "";
+        if (!confirm("آیا از حذف این رکورد مطمئن هستید؟\n" + label)) return;
+        if (!confirm("تأیید نهایی: این رکورد حذف شود؟")) return;
+        allRows.splice(idx, 1);
+        DATA.groups = rowsToGroups(allRows);
+        renderEditTable();
+        renderStats();
+      });
     });
-  });
-  // force Persian digits on unit/code and internal number fields
-  tbody.querySelectorAll('[data-field="code"], [data-field="number"]').forEach(inp => {
-    const toFa = () => { inp.value = toPersianDigits(inp.value); };
-    inp.addEventListener("blur", toFa);
-    inp.addEventListener("change", toFa);
-  });
+    tbody.querySelectorAll('[data-field="code"], [data-field="number"]').forEach(inp => {
+      const toFa = () => { inp.value = toPersianDigits(inp.value); };
+      inp.addEventListener("blur", toFa);
+      inp.addEventListener("change", toFa);
+    });
+  }
+
+  // Mobile cards
+  if (cardsRoot) {
+    if (!rows.length) {
+      cardsRoot.innerHTML = '<div class="edit-empty">رکوردی یافت نشد. فیلتر را تغییر دهید یا ردیف جدید اضافه کنید.</div>';
+    } else {
+      cardsRoot.innerHTML = rows.map((r) => `
+      <div class="edit-card" data-idx="${r._i}">
+        <div class="ec-row ec-2col">
+          <div>
+            <div class="ec-label">نوع</div>
+            <select data-field="type">
+              <option value="unit" ${r.type === "unit" ? "selected" : ""}>واحد</option>
+              <option value="project" ${r.type === "project" ? "selected" : ""}>پروژه</option>
+            </select>
+          </div>
+          <div>
+            <div class="ec-label">کد واحد</div>
+            <input data-field="code" value="${escapeAttr(toPersianDigits(r.code))}" />
+          </div>
+        </div>
+        <div class="ec-row">
+          <div class="ec-label">واحد / پروژه</div>
+          <input data-field="title" value="${escapeAttr(r.title)}" />
+        </div>
+        <div class="ec-row">
+          <div class="ec-label">شماره داخلی</div>
+          <input data-field="number" value="${escapeAttr(toPersianDigits(r.number))}" style="direction:ltr;text-align:center" />
+        </div>
+        <div class="ec-row">
+          <div class="ec-label">نام و نام خانوادگی</div>
+          <input data-field="name" value="${escapeAttr(r.name)}" />
+        </div>
+        <div class="ec-actions">
+          <button type="button" class="btn-del-card" data-del="${r._i}">حذف رکورد</button>
+        </div>
+      </div>
+    `).join("");
+
+      cardsRoot.querySelectorAll(".btn-del-card").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const idx = +btn.dataset.del;
+          const allRows = flatRows();
+          const target = allRows[idx];
+          const label = target ? ((target.name || "") + " — " + (target.number || "")) : "";
+          if (!confirm("آیا از حذف این رکورد مطمئن هستید؟\n" + label)) return;
+          if (!confirm("تأیید نهایی: این رکورد حذف شود؟")) return;
+          allRows.splice(idx, 1);
+          DATA.groups = rowsToGroups(allRows);
+          renderEditTable();
+          renderStats();
+        });
+      });
+      cardsRoot.querySelectorAll('[data-field="code"], [data-field="number"]').forEach(inp => {
+        const toFa = () => { inp.value = toPersianDigits(inp.value); };
+        inp.addEventListener("blur", toFa);
+        inp.addEventListener("change", toFa);
+      });
+    }
+  }
+
   bindPersianNumberInputs();
 }
 
 function bindEditFilters() {
   bindPersianNumberInputs();
-  ["fType", "fTitle", "fCode", "fNumber", "fName"].forEach(id => {
+  ["fType", "fTitle", "fCode", "fNumber", "fName", "fTypeM", "fTitleM", "fCodeM", "fNumberM", "fNameM"].forEach(id => {
     const el = document.getElementById(id);
     if (!el || el.dataset.bound) return;
     el.dataset.bound = "1";
@@ -2500,17 +2738,25 @@ function rowsToGroups(rows) {
 function applyTableToData() {
   // merge visible edited rows back into full dataset (respect filters)
   const all = flatRows();
-  document.querySelectorAll("#editTableBody tr").forEach(tr => {
+  // Prefer mobile cards on narrow screens; otherwise desktop table rows
+  const source = isMobileEdit()
+    ? document.querySelectorAll("#editCards .edit-card")
+    : document.querySelectorAll("#editTableBody tr");
+  source.forEach(tr => {
     const idx = +tr.dataset.idx;
     if (Number.isNaN(idx) || idx < 0) return;
     const typeEl = tr.querySelector('[data-field="type"]');
     if (!typeEl) return;
+    const val = (sel) => {
+      const el = tr.querySelector(sel);
+      return el && el.value != null ? String(el.value).trim() : "";
+    };
     const row = {
       type: typeEl.value,
-      title: tr.querySelector('[data-field="title"]').value.trim(),
-      code: tr.querySelector('[data-field="code"]').value.trim(),
-      number: tr.querySelector('[data-field="number"]').value.trim(),
-      name: tr.querySelector('[data-field="name"]').value.trim()
+      title: val('[data-field="title"]'),
+      code: val('[data-field="code"]'),
+      number: val('[data-field="number"]'),
+      name: val('[data-field="name"]')
     };
     if (idx < all.length) all[idx] = row;
     else all.push(row);
@@ -2597,6 +2843,8 @@ document.getElementById("btnSave").addEventListener("click", () => {
 });
 
 document.getElementById("btnReset").addEventListener("click", resetData);
+document.getElementById("btnClearAll").addEventListener("click", clearAllData);
+
 
 document.getElementById("btnAddRow").addEventListener("click", () => {
   applyTableToData();
