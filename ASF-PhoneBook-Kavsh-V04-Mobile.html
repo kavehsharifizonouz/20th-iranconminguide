@@ -801,9 +801,10 @@
       /* Hide mobile card UI leftovers */
       .edit-mobile-filters { display: none !important; }
       .edit-cards { display: none !important; }
-      /* Hide Excel / Word / PDF exports on phone */
-      .admin-export-section { display: none !important; }
-      .admin-export-actions { display: none !important; }
+      /* Hide Excel / Word / PDF on phone — keep JSON backup */
+      #btnExcel, #btnWord, #btnPdf { display: none !important; }
+      .admin-export-section { display: block !important; }
+      .admin-export-actions { display: flex !important; }
       .admin-actions { flex-direction: column; align-items: stretch; }
       .admin-actions .btn, .admin-actions .file-input-wrap { width: 100%; justify-content: center; }
       .add-row-bar { flex-direction: column; align-items: stretch; }
