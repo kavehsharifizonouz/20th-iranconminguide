@@ -269,7 +269,7 @@
     }
     .edit-table input:focus, .edit-table select:focus { border-color: var(--accent); background: white; outline: none; }
     .edit-table .num-col { direction: ltr; text-align: center; width: 110px; }
-    .edit-table .type-col { width: 90px; }
+    .edit-table .type-col { width: 130px; min-width: 120px; }
     .edit-table .code-col { width: 100px; }
     .edit-table .actions-col { width: 50px; text-align: center; }
     .edit-table .btn-del { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 1.1rem; padding: 2px 6px; }
@@ -286,6 +286,19 @@
     [data-theme="dark"] .edit-table .filter-row th { background: #1a2332; }
 
     .add-row-bar { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+    .edit-table select.type-select { font-weight: 500; }
+    .add-row-bar #btnAddType {
+      border-color: #3182ce;
+      color: #2b6cb0;
+      background: #ebf8ff;
+    }
+    [data-theme="dark"] .add-row-bar #btnAddType {
+      background: #1a365d;
+      color: #90cdf4;
+      border-color: #2b6cb0;
+    }
+
 
     
 
@@ -625,7 +638,7 @@
       .edit-table td {
         white-space: nowrap;
       }
-      .edit-table .type-col { width: 90px; min-width: 90px; }
+      .edit-table .type-col { width: 130px; min-width: 120px; }
       .edit-table .code-col { width: 100px; min-width: 100px; }
       .edit-table .num-col { width: 120px; min-width: 120px; }
       .edit-table .actions-col { width: 48px; min-width: 48px; }
@@ -1214,7 +1227,7 @@
         <!-- Table editor -->
         <div class="admin-section">
           <h3>✏️ ویرایش جدولی</h3>
-          <p class="hint" style="margin-bottom:8px;">مستقیماً در جدول ویرایش کنید، ردیف اضافه/حذف کنید، سپس «ذخیره تغییرات» را بزنید. در موبایل می‌توانید جدول را افقی اسکرول کنید.</p>
+          <p class="hint" style="margin-bottom:8px;">مستقیماً در جدول ویرایش کنید، ردیف اضافه/حذف کنید، سپس «ذخیره تغییرات» را بزنید. برای افزودن گزینه جدید به ستون «نوع»، از خود همان ستون گزینه «＋ نوع جدید…» را انتخاب کنید یا دکمه «+ نوع جدید» را بزنید.</p>
 
           <!-- Mobile filters (portrait) -->
           <div class="edit-mobile-filters" id="editMobileFilters">
@@ -1271,6 +1284,7 @@
 
           <div class="add-row-bar">
             <button class="btn primary" id="btnAddRow">+ ردیف جدید</button>
+            <button class="btn info" id="btnAddType" title="افزودن گزینه جدید به ستون نوع">+ نوع جدید</button>
           </div>
         </div>
 
@@ -2334,6 +2348,177 @@ const DEFAULT_DATA = {
 };
 
 const STORAGE_KEY = "asfalt_tous_phonebook_v4";
+const TYPE_STORAGE_KEY = "asfalt_tous_phonebook_types_v1";
+
+/* Built-in + custom type options for column "نوع" */
+const BUILTIN_TYPES = [
+  { value: "unit", label: "واحد" },
+  { value: "project", label: "پروژه" }
+];
+let CUSTOM_TYPES = []; // [{ value, label }]
+
+function loadCustomTypes() {
+  try {
+    const raw = localStorage.getItem(TYPE_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        CUSTOM_TYPES = parsed.filter(t => t && t.value && t.label);
+        return;
+      }
+    }
+  } catch (e) {}
+  CUSTOM_TYPES = [];
+}
+
+function saveCustomTypes() {
+  localStorage.setItem(TYPE_STORAGE_KEY, JSON.stringify(CUSTOM_TYPES));
+}
+
+function allTypeOptions() {
+  // merge builtin + custom + any types currently present in DATA
+  const map = new Map();
+  BUILTIN_TYPES.forEach(t => map.set(t.value, t.label));
+  CUSTOM_TYPES.forEach(t => map.set(t.value, t.label));
+  if (DATA && Array.isArray(DATA.groups)) {
+    DATA.groups.forEach(g => {
+      if (!g || !g.type) return;
+      if (!map.has(g.type)) {
+        // fallback label = type value itself
+        map.set(g.type, g.type);
+      }
+    });
+  }
+  return Array.from(map.entries()).map(([value, label]) => ({ value, label }));
+}
+
+function typeLabel(value) {
+  const t = allTypeOptions().find(x => x.value === value);
+  return t ? t.label : (value || "");
+}
+
+function isProjectType(value) {
+  return value === "project";
+}
+
+function isUnitType(value) {
+  return value === "unit";
+}
+
+function slugifyTypeValue(label) {
+  const base = String(label || "").trim();
+  if (!base) return "";
+  // keep persian/latin; build a stable key
+  let key = base.replace(/\s+/g, "_");
+  // avoid collision with builtin
+  if (key === "unit" || key === "project") key = "custom_" + key;
+  let candidate = key;
+  let i = 2;
+  const existing = new Set(allTypeOptions().map(t => t.value));
+  while (existing.has(candidate)) {
+    candidate = key + "_" + i;
+    i++;
+  }
+  return candidate;
+}
+
+function addNewTypeInteractive() {
+  const label = prompt("نام نوع جدید را وارد کنید (مثلاً: انبار، ستاد، ...):");
+  if (label == null) return;
+  const trimmed = String(label).trim();
+  if (!trimmed) {
+    alert("نام نوع نمی‌تواند خالی باشد.");
+    return;
+  }
+  // if label already exists, ignore
+  const exists = allTypeOptions().some(t => t.label === trimmed || t.value === trimmed);
+  if (exists) {
+    alert("این نوع از قبل وجود دارد.");
+    return;
+  }
+  const value = slugifyTypeValue(trimmed);
+  CUSTOM_TYPES.push({ value, label: trimmed });
+  saveCustomTypes();
+  // refresh selects in filters + table
+  refreshTypeFilterOptions();
+  renderEditTable();
+  showStatus("نوع «" + trimmed + "» اضافه شد. می‌توانید در ستون نوع انتخابش کنید.", "ok");
+}
+
+function refreshTypeFilterOptions() {
+  const sel = document.getElementById("fType");
+  if (!sel) return;
+  const current = sel.value;
+  const opts = allTypeOptions();
+  sel.innerHTML = '<option value="">همه</option>' + opts.map(t =>
+    `<option value="${escapeAttr(t.value)}">${escapeAttr(t.label)}</option>`
+  ).join("");
+  // restore selection if still valid
+  if ([...sel.options].some(o => o.value === current)) sel.value = current;
+}
+
+function typeSelectHtml(selected) {
+  const opts = allTypeOptions();
+  // ensure current value is present even if unknown
+  if (selected && !opts.some(t => t.value === selected)) {
+    opts.push({ value: selected, label: selected });
+  }
+  const options = opts.map(t =>
+    `<option value="${escapeAttr(t.value)}" ${t.value === selected ? "selected" : ""}>${escapeAttr(t.label)}</option>`
+  ).join("");
+  // special option to add new type from inside the column
+  return `<select data-field="type" class="type-select">${options}<option value="__new__">＋ نوع جدید…</option></select>`;
+}
+
+function ensureTypeRegistered(value, label) {
+  if (!value) return;
+  const opts = allTypeOptions();
+  if (opts.some(t => t.value === value)) return;
+  const lab = (label || value).trim();
+  if (!lab) return;
+  if (value === "unit" || value === "project") return;
+  if (!CUSTOM_TYPES.some(t => t.value === value)) {
+    CUSTOM_TYPES.push({ value, label: lab });
+    saveCustomTypes();
+  }
+}
+
+function bindTypeSelectHandlers(root) {
+  const scope = root || document;
+  scope.querySelectorAll('select[data-field="type"]').forEach(sel => {
+    if (sel.dataset.typeBound) return;
+    sel.dataset.typeBound = "1";
+    sel.addEventListener("change", () => {
+      if (sel.value !== "__new__") return;
+      const label = prompt("نام نوع جدید را وارد کنید (مثلاً: انبار، ستاد، …):");
+      if (label == null || !String(label).trim()) {
+        // revert to first option
+        sel.value = "unit";
+        return;
+      }
+      const trimmed = String(label).trim();
+      const existing = allTypeOptions().find(t => t.label === trimmed || t.value === trimmed);
+      if (existing) {
+        sel.value = existing.value;
+        return;
+      }
+      const value = slugifyTypeValue(trimmed);
+      CUSTOM_TYPES.push({ value, label: trimmed });
+      saveCustomTypes();
+      refreshTypeFilterOptions();
+      // rebuild this select options and select the new value
+      const opts = allTypeOptions();
+      sel.innerHTML = opts.map(t =>
+        `<option value="${escapeAttr(t.value)}">${escapeAttr(t.label)}</option>`
+      ).join("") + `<option value="__new__">＋ نوع جدید…</option>`;
+      sel.value = value;
+      // also refresh other row selects so new type appears everywhere
+      renderEditTable();
+      showStatus("نوع «" + trimmed + "» اضافه و انتخاب شد.", "ok");
+    });
+  });
+}
+
 let DATA = null;
 let currentView = "all"; // all | units | projects | admin
 
@@ -2377,6 +2562,7 @@ function resetData() {
   DATA = persianizeData(JSON.parse(JSON.stringify(DEFAULT_DATA)));
   localStorage.removeItem(STORAGE_KEY);
   showStatus("داده به حالت اولیه بازگشت.", "info");
+  refreshTypeFilterOptions();
   renderAll();
 }
 
@@ -2389,6 +2575,7 @@ function clearAllData() {
   };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA));
   showStatus("همه داده‌ها خالی شد.", "ok");
+  refreshTypeFilterOptions();
   renderAll();
 }
 
@@ -2635,12 +2822,7 @@ function renderEditTable() {
 
   tbody.innerHTML = rows.map((r) => `
     <tr data-idx="${r._i}">
-      <td class="type-col">
-        <select data-field="type">
-          <option value="unit" ${r.type === "unit" ? "selected" : ""}>واحد</option>
-          <option value="project" ${r.type === "project" ? "selected" : ""}>پروژه</option>
-        </select>
-      </td>
+      <td class="type-col">${typeSelectHtml(r.type)}</td>
       <td><input data-field="title" value="${escapeAttr(r.title)}" /></td>
       <td class="code-col"><input data-field="code" value="${escapeAttr(toPersianDigits(r.code))}" /></td>
       <td class="num-col"><input data-field="number" value="${escapeAttr(toPersianDigits(r.number))}" style="direction:rtl;text-align:center" /></td>
@@ -2668,6 +2850,7 @@ function renderEditTable() {
     inp.addEventListener("blur", toFa);
     inp.addEventListener("change", toFa);
   });
+  bindTypeSelectHandlers(tbody);
   bindPersianNumberInputs();
 }
 
@@ -2726,8 +2909,11 @@ function applyTableToData() {
       const el = tr.querySelector(sel);
       return el && el.value != null ? String(el.value).trim() : "";
     };
+    let typeVal = typeEl.value;
+    if (typeVal === "__new__") typeVal = "unit";
+    ensureTypeRegistered(typeVal, typeLabel(typeVal));
     const row = {
-      type: typeEl.value,
+      type: typeVal,
       title: val('[data-field="title"]'),
       code: val('[data-field="code"]'),
       number: val('[data-field="number"]'),
@@ -2820,6 +3006,8 @@ document.getElementById("btnReset").addEventListener("click", resetData);
 document.getElementById("btnClearAll").addEventListener("click", clearAllData);
 
 
+document.getElementById("btnAddType").addEventListener("click", addNewTypeInteractive);
+
 document.getElementById("btnAddRow").addEventListener("click", () => {
   applyTableToData();
   if (!DATA.groups.length) {
@@ -2852,7 +3040,23 @@ document.getElementById("fileExcel").addEventListener("change", (e) => {
         const row = aoa[i];
         if (!row || row.length < 2) continue;
         const typeRaw = String(row[0] || "").trim();
-        const type = (typeRaw.includes("پروژه") || typeRaw.toLowerCase() === "project") ? "project" : "unit";
+        let type = "unit";
+        if (typeRaw) {
+          const opts = allTypeOptions();
+          const byLabel = opts.find(t => t.label === typeRaw || t.value === typeRaw);
+          if (byLabel) type = byLabel.value;
+          else if (typeRaw.includes("پروژه") || typeRaw.toLowerCase() === "project") type = "project";
+          else if (typeRaw.includes("واحد") || typeRaw.toLowerCase() === "unit") type = "unit";
+          else {
+            // auto-register unknown type from Excel
+            const value = slugifyTypeValue(typeRaw);
+            if (!CUSTOM_TYPES.some(t => t.value === value)) {
+              CUSTOM_TYPES.push({ value, label: typeRaw });
+              saveCustomTypes();
+            }
+            type = value;
+          }
+        }
         const title = String(row[1] || "").trim();
         const code = String(row[2] || "").trim();
         const number = String(row[3] || "").trim();
@@ -2899,7 +3103,7 @@ function collectExportRows() {
   DATA.groups.forEach(g => {
     (g.people || []).forEach(p => {
       rows.push({
-        type: g.type === "project" ? "پروژه" : "واحد",
+        type: typeLabel(g.type) || (g.type === "project" ? "پروژه" : "واحد"),
         group: g.title,
         code: g.code || "",
         number: p.number,
@@ -3098,7 +3302,7 @@ document.getElementById("btnExcel").addEventListener("click", async () => {
     let sr = 8;
     DATA.groups.forEach(g => {
       const row = wsSum.getRow(sr);
-      row.values = [g.title, g.type === "project" ? "پروژه" : "واحد", (g.people || []).length];
+      row.values = [g.title, typeLabel(g.type) || (g.type === "project" ? "پروژه" : "واحد"), (g.people || []).length];
       row.eachCell((c, col) => {
         c.font = col === 2 ? (g.type === "project" ? groupFontProj : groupFontUnit) : cellFont;
         c.border = thinBorder;
@@ -3324,7 +3528,9 @@ document.getElementById("collapseToggle").addEventListener("click", () => {
   });
 })();
 
+loadCustomTypes();
 loadData();
+refreshTypeFilterOptions();
 renderAll();
 bindPersianNumberInputs();
 </script>
