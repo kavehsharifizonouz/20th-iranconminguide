@@ -250,6 +250,139 @@
     .btn.warn { border-color: #d69e2e; color: #975a16; }
     .btn.warn:hover { background: #fffff0; }
     .btn svg { width: 16px; height: 16px; }
+    
+    /* ===== Toast & Modal ===== */
+    .toast-host {
+      position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+      z-index: 9999; display: flex; flex-direction: column; gap: 8px;
+      width: min(420px, calc(100vw - 24px)); pointer-events: none;
+    }
+    .toast {
+      pointer-events: auto;
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 12px 14px; border-radius: 12px;
+      background: var(--card); color: var(--text);
+      border: 1px solid var(--border);
+      box-shadow: 0 10px 28px rgba(0,0,0,.18);
+      font-size: 0.88rem; line-height: 1.55;
+      animation: toastIn 0.28s ease;
+    }
+    .toast.hide { animation: toastOut 0.25s ease forwards; }
+    .toast.ok { border-color: #38a169; background: #f0fff4; color: #276749; }
+    .toast.err { border-color: #e11d48; background: var(--danger-bg); color: var(--danger); }
+    .toast.info { border-color: #3182ce; background: #ebf8ff; color: #2b6cb0; }
+    [data-theme="dark"] .toast.ok { background: #0f2a1c; color: #9ae6b4; }
+    [data-theme="dark"] .toast.err { background: #3B1520; color: #FB7185; }
+    [data-theme="dark"] .toast.info { background: #0c1a2e; color: #90cdf4; }
+    .toast-icon {
+      width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.75rem; color: #fff; margin-top: 1px;
+    }
+    .toast.ok .toast-icon { background: #38a169; }
+    .toast.err .toast-icon { background: #e11d48; }
+    .toast.info .toast-icon { background: #3182ce; }
+    .toast-body { flex: 1; min-width: 0; }
+    .toast-close {
+      border: none; background: transparent; color: inherit; opacity: 0.55;
+      cursor: pointer; font-size: 1.1rem; line-height: 1; padding: 0 2px;
+    }
+    .toast-close:hover { opacity: 1; }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes toastOut {
+      to { opacity: 0; transform: translateY(-8px); }
+    }
+
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 10000;
+      background: rgba(7, 14, 24, 0.55);
+      backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px;
+      animation: modalFade 0.2s ease;
+    }
+    .modal-overlay.hide { animation: modalFadeOut 0.18s ease forwards; }
+    @keyframes modalFade { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes modalFadeOut { to { opacity: 0; } }
+    .modal-box {
+      width: min(420px, 100%);
+      background: var(--card);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 20px 50px rgba(0,0,0,.35);
+      overflow: hidden;
+      direction: rtl;
+      animation: modalPop 0.22s cubic-bezier(.2,.8,.2,1);
+    }
+    @keyframes modalPop {
+      from { opacity: 0; transform: translateY(12px) scale(0.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .modal-head {
+      display: flex; align-items: center; gap: 10px;
+      padding: 14px 16px 10px;
+      background: linear-gradient(135deg, #0B1D36, #163A5F);
+      color: #fff;
+    }
+    [data-theme="dark"] .modal-head {
+      background: linear-gradient(135deg, #0F1C2E, #163A5F);
+    }
+    .modal-head.warn { background: linear-gradient(135deg, #9a3412, #c2410c); }
+    .modal-head.danger { background: linear-gradient(135deg, #9f1239, #e11d48); }
+    .modal-head.info { background: linear-gradient(135deg, #1e3a5f, #2563eb); }
+    .modal-head-icon {
+      width: 34px; height: 34px; border-radius: 10px;
+      background: rgba(255,255,255,0.18);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; flex-shrink: 0;
+    }
+    .modal-head h3 {
+      margin: 0; font-size: 0.98rem; font-weight: 700; flex: 1;
+    }
+    .modal-body {
+      padding: 16px 18px 6px;
+      font-size: 0.92rem; line-height: 1.7;
+      color: var(--text);
+      white-space: pre-wrap;
+    }
+    .modal-body .modal-sub {
+      margin-top: 6px; font-size: 0.82rem; color: var(--muted);
+    }
+    .modal-input {
+      width: 100%; margin-top: 12px; margin-bottom: 4px;
+      padding: 10px 12px; border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--input-bg); color: var(--text);
+      font-family: inherit; font-size: 0.92rem;
+      box-sizing: border-box;
+    }
+    .modal-input:focus {
+      outline: none; border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(255,90,0,.15);
+    }
+    .modal-actions {
+      display: flex; gap: 8px; justify-content: flex-start;
+      padding: 12px 16px 16px; flex-wrap: wrap;
+    }
+    .modal-actions .btn {
+      min-width: 96px; justify-content: center;
+      padding: 9px 14px; border-radius: 10px; font-weight: 600;
+    }
+    .modal-actions .btn.primary {
+      background: #FF5A00; color: #fff; border-color: #FF5A00;
+    }
+    .modal-actions .btn.primary:hover { background: #E04E00; }
+    .modal-actions .btn.danger-fill {
+      background: #e11d48; color: #fff; border-color: #e11d48;
+    }
+    .modal-actions .btn.ghost {
+      background: transparent;
+    }
+
     .status-msg { font-size: 0.85rem; padding: 8px 12px; border-radius: 6px; margin-top: 10px; display: none; }
     .status-msg.ok { display: block; background: #f0fff4; color: #276749; border: 1px solid #9ae6b4; }
     .status-msg.err { display: block; background: var(--danger-bg); color: var(--danger); border: 1px solid #feb2b2; }
@@ -287,17 +420,35 @@
 
     .add-row-bar { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 
+    .edit-table tr.row-new td {
+      background: #FFF4E5 !important;
+      box-shadow: inset 0 0 0 2px #FF5A00;
+    }
+    .edit-table tr.row-new input,
+    .edit-table tr.row-new select {
+      background: #fff !important;
+      border: 1px solid #FF5A00 !important;
+    }
+    [data-theme="dark"] .edit-table tr.row-new td {
+      background: #3D2410 !important;
+      box-shadow: inset 0 0 0 2px #FF5A00;
+    }
+    [data-theme="dark"] .edit-table tr.row-new input,
+    [data-theme="dark"] .edit-table tr.row-new select {
+      background: #0C1726 !important;
+      border-color: #FF5A00 !important;
+    }
+    .edit-table tr.row-new {
+      animation: rowNewPulse 1.2s ease-in-out 2;
+    }
+    @keyframes rowNewPulse {
+      0%, 100% { filter: brightness(1); }
+      50% { filter: brightness(1.08); }
+    }
+
+
+
     .edit-table select.type-select { font-weight: 500; }
-    .add-row-bar #btnAddType {
-      border-color: #3182ce;
-      color: #2b6cb0;
-      background: #ebf8ff;
-    }
-    [data-theme="dark"] .add-row-bar #btnAddType {
-      background: #1a365d;
-      color: #90cdf4;
-      border-color: #2b6cb0;
-    }
 
 
     
@@ -1051,6 +1202,61 @@
     .float-btn.expand-all .icon-collapse { display: none; }
     .float-btn.expand-all { color: #FF5A00; }
     [data-theme="dark"] .float-btn.expand-all { color: #FF8A3D; }
+    
+    /* Sticky admin chrome: always visible, no need to scroll to exit */
+    .admin-sticky-bar {
+      position: sticky; top: 0; z-index: 80;
+      display: none;
+      align-items: center; justify-content: space-between; gap: 10px;
+      padding: 10px 12px;
+      background: linear-gradient(135deg, #0B1D36 0%, #163A5F 100%);
+      color: #fff;
+      border-bottom: 3px solid #FF5A00;
+      box-shadow: 0 6px 18px rgba(0,0,0,.2);
+    }
+    body.admin-open .admin-sticky-bar { display: flex; }
+    [data-theme="dark"] .admin-sticky-bar {
+      background: linear-gradient(135deg, #050A12 0%, #0F1C2E 100%);
+    }
+    .admin-sticky-bar .asb-title {
+      font-size: 0.92rem; font-weight: 700; margin: 0;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .admin-sticky-bar .asb-sub {
+      font-size: 0.72rem; opacity: 0.85; margin-top: 2px;
+    }
+    .admin-sticky-bar .asb-actions {
+      display: flex; gap: 8px; flex-shrink: 0; align-items: center;
+    }
+    .admin-sticky-bar .asb-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 12px; border-radius: 999px; border: none;
+      font-family: inherit; font-size: 0.82rem; font-weight: 700;
+      cursor: pointer;
+    }
+    .admin-sticky-bar .asb-btn.save {
+      background: rgba(255,255,255,0.14); color: #fff;
+      border: 1px solid rgba(255,255,255,0.25);
+    }
+    .admin-sticky-bar .asb-btn.exit {
+      background: #FF5A00; color: #fff;
+      box-shadow: 0 0 12px rgba(255,90,0,.4);
+    }
+    .admin-sticky-bar .asb-btn svg { width: 16px; height: 16px; }
+    .admin-panel .admin-topbar { display: none; } /* avoid duplicate headers */
+    .admin-exit-bar { display: none !important; } /* no bottom travel */
+    .float-btn.admin .icon-admin-edit { display: block; }
+    .float-btn.admin .icon-admin-close { display: none; }
+    .float-btn.admin.active-admin .icon-admin-edit { display: none; }
+    .float-btn.admin.active-admin .icon-admin-close { display: block; }
+    @media (max-width: 768px) {
+      .admin-sticky-bar { padding: 8px 10px; }
+      .admin-sticky-bar .asb-title { font-size: 0.84rem; }
+      .admin-sticky-bar .asb-sub { display: none; }
+      .admin-sticky-bar .asb-btn { padding: 8px 10px; font-size: 0.78rem; }
+      .admin-sticky-bar .asb-btn.save span { display: none; }
+    }
+
     .float-btn.admin { color: #FF5A00; }
     [data-theme="dark"] .float-btn.admin { color: #FFB347; }
     .float-btn.admin.active-admin {
@@ -1128,8 +1334,11 @@
       </svg>
     </button>
     <button class="float-btn admin" id="adminToggle" title="مدیریت داده" aria-label="مدیریت داده">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <svg class="icon-admin-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+      </svg>
+      <svg class="icon-admin-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
       </svg>
     </button>
   </div>
@@ -1165,6 +1374,26 @@
       </div>
     </div>
   </header>
+
+  <div class="admin-sticky-bar" id="adminStickyBar">
+    <div>
+      <div class="asb-title">مدیریت داده</div>
+      <div class="asb-sub">ویرایش و ذخیره دفترچه تلفن</div>
+    </div>
+    <div class="asb-actions">
+      <button type="button" class="asb-btn save" id="btnAdminSaveSticky" title="ذخیره تغییرات">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        <span>ذخیره</span>
+      </button>
+      <button type="button" class="asb-btn exit" id="btnAdminExitSticky" title="بازگشت به دفترچه">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/>
+        </svg>
+        بازگشت
+      </button>
+    </div>
+  </div>
+
   <div class="scroll-area">
 <main class="container">
 
@@ -1177,8 +1406,18 @@
     <!-- ===== VIEW: Admin / Data ===== -->
     <div class="view-panel" id="view-admin">
       <div class="admin-panel">
-        <h2>مدیریت داده و خروجی</h2>
-        <p class="hint">از این بخش می‌توانید کل دفترچه را ویرایش، ذخیره، بازیابی و خروجی بگیرید. تغییرات در مرورگر شما ذخیره می‌شود.</p>
+        <div class="admin-topbar">
+          <div>
+            <h2>مدیریت داده و خروجی</h2>
+            <p class="hint" style="margin-bottom:0;margin-top:6px;">ویرایش، ذخیره، بازیابی و خروجی دفترچه. تغییرات در همین مرورگر ذخیره می‌شود.</p>
+          </div>
+          <button type="button" class="admin-exit-btn" id="btnAdminExitTop" title="بازگشت به دفترچه">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/>
+            </svg>
+            بازگشت به دفترچه
+          </button>
+        </div>
 
         <div class="stats" id="dataStats"></div>
 
@@ -1227,7 +1466,7 @@
         <!-- Table editor -->
         <div class="admin-section">
           <h3>✏️ ویرایش جدولی</h3>
-          <p class="hint" style="margin-bottom:8px;">مستقیماً در جدول ویرایش کنید، ردیف اضافه/حذف کنید، سپس «ذخیره تغییرات» را بزنید. برای افزودن گزینه جدید به ستون «نوع»، از خود همان ستون گزینه «＋ نوع جدید…» را انتخاب کنید یا دکمه «+ نوع جدید» را بزنید.</p>
+          <p class="hint" style="margin-bottom:8px;">مستقیماً در جدول ویرایش کنید، ردیف اضافه/حذف کنید، سپس «ذخیره تغییرات» را بزنید. ستون «نوع» مانند سایر ستون‌ها قابل نوشتن است.</p>
 
           <!-- Mobile filters (portrait) -->
           <div class="edit-mobile-filters" id="editMobileFilters">
@@ -1284,16 +1523,27 @@
 
           <div class="add-row-bar">
             <button class="btn primary" id="btnAddRow">+ ردیف جدید</button>
-            <button class="btn info" id="btnAddType" title="افزودن گزینه جدید به ستون نوع">+ نوع جدید</button>
           </div>
         </div>
 
+        <div class="admin-exit-bar">
+          <div class="hint-mini">پس از اتمام کار، از اینجا به دفترچه تلفن برگردید.</div>
+          <button type="button" class="btn-done" id="btnAdminExitBottom">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/>
+            </svg>
+            اتمام و بازگشت به دفترچه
+          </button>
+        </div>
 
       </div>
     </div>
   </main>
 
   </div>
+  <div class="toast-host" id="toastHost" aria-live="polite"></div>
+  <div id="modalHost"></div>
+
   <footer class="footer">
     <div>تلفن: ۴۳۶۲۱۰۰۰ &nbsp;|&nbsp; فکس: ۴۳۶۲۱۰۳۰ &nbsp;|&nbsp; <a href="mailto:info@asfalt-tous.com">info@asfalt-tous.com</a> &nbsp;|&nbsp; <a href="https://www.asfalt-tous.com" target="_blank">www.asfalt-tous.com</a></div>
     <div class="address">خیابان شیراز جنوبی (پایین اتوبان همت)، خیابان آقاعلیخانی، خیابان دکتر رضا داوری اردکانی (گلستان سابق)، نبش دوازده متری سوم، شماره ۲، ساختمان مهرگان<br/>کدپستی: ۱۴۳۶۹۳۵۷۹۱ &nbsp;|&nbsp; شماره ثبت: ۱۰۳۸ &nbsp;|&nbsp; شناسه ملی: ۱۰۸۶۱۶۷۸۵۳۹</div>
@@ -2375,6 +2625,43 @@ function saveCustomTypes() {
   localStorage.setItem(TYPE_STORAGE_KEY, JSON.stringify(CUSTOM_TYPES));
 }
 
+/** Types actually used in current DATA */
+function typesUsedInData() {
+  const used = new Set();
+  if (DATA && Array.isArray(DATA.groups)) {
+    DATA.groups.forEach(g => {
+      if (g && g.type) used.add(g.type);
+    });
+  }
+  return used;
+}
+
+/**
+ * Keep CUSTOM_TYPES in sync with data:
+ * - register any non-builtin type still present in data
+ * - drop custom types that no longer appear in any row
+ */
+function syncTypesFromData() {
+  const used = typesUsedInData();
+  const builtinValues = new Set(BUILTIN_TYPES.map(t => t.value));
+
+  // drop unused custom types
+  CUSTOM_TYPES = CUSTOM_TYPES.filter(t => used.has(t.value));
+
+  // register labels for used non-builtin types missing from CUSTOM_TYPES
+  used.forEach(value => {
+    if (builtinValues.has(value)) return;
+    if (CUSTOM_TYPES.some(t => t.value === value)) return;
+    // prefer existing label from previous custom list was already filtered;
+    // fallback: humanize value
+    const label = String(value).replace(/^custom_/, "").replace(/_/g, " ");
+    CUSTOM_TYPES.push({ value, label });
+  });
+
+  saveCustomTypes();
+  refreshTypeFilterOptions();
+}
+
 function allTypeOptions() {
   // merge builtin + custom + any types currently present in DATA
   const map = new Map();
@@ -2422,52 +2709,134 @@ function slugifyTypeValue(label) {
   return candidate;
 }
 
-function addNewTypeInteractive() {
-  const label = prompt("نام نوع جدید را وارد کنید (مثلاً: انبار، ستاد، ...):");
+async function addNewTypeInteractive() {
+  const label = await uiPrompt("نام نوع جدید را وارد کنید (مثلاً: انبار، ستاد، …):", "", "نوع جدید");
   if (label == null) return;
   const trimmed = String(label).trim();
   if (!trimmed) {
-    alert("نام نوع نمی‌تواند خالی باشد.");
+    await uiAlert("نام نوع نمی‌تواند خالی باشد.", "خطا", "err");
     return;
   }
-  // if label already exists, ignore
   const exists = allTypeOptions().some(t => t.label === trimmed || t.value === trimmed);
   if (exists) {
-    alert("این نوع از قبل وجود دارد.");
+    await uiAlert("این نوع از قبل وجود دارد.", "توجه", "info");
     return;
   }
   const value = slugifyTypeValue(trimmed);
   CUSTOM_TYPES.push({ value, label: trimmed });
   saveCustomTypes();
-  // refresh selects in filters + table
+  try { applyTableToData(); } catch (_) {}
   refreshTypeFilterOptions();
+  try { updateTypeListLabel(); } catch (_) {}
+  try { ensureTypeDatalist(); } catch (_) {}
   renderEditTable();
-  showStatus("نوع «" + trimmed + "» اضافه شد. می‌توانید در ستون نوع انتخابش کنید.", "ok");
+  showStatus("نوع «" + trimmed + "» اضافه شد. در ستون نوع قابل انتخاب است.", "ok");
 }
 
 function refreshTypeFilterOptions() {
   const sel = document.getElementById("fType");
-  if (!sel) return;
-  const current = sel.value;
-  const opts = allTypeOptions();
-  sel.innerHTML = '<option value="">همه</option>' + opts.map(t =>
-    `<option value="${escapeAttr(t.value)}">${escapeAttr(t.label)}</option>`
-  ).join("");
-  // restore selection if still valid
-  if ([...sel.options].some(o => o.value === current)) sel.value = current;
+  if (sel) {
+    const current = sel.value;
+    const opts = allTypeOptions();
+    sel.innerHTML = '<option value="">همه</option>' + opts.map(t =>
+      `<option value="${escapeAttr(t.value)}">${escapeAttr(t.label)}</option>`
+    ).join("");
+    if ([...sel.options].some(o => o.value === current)) sel.value = current;
+  }
+  refreshMainFilterTabs();
+}
+
+function tabLabelForType(t) {
+  if (t.value === "unit") return "واحدها";
+  if (t.value === "project") return "پروژه‌ها";
+  return t.label;
+}
+
+function refreshMainFilterTabs() {
+  const tabs = document.getElementById("filterTabs");
+  if (!tabs) return;
+  const prev = currentView;
+  const used = typesUsedInData();
+  // tabs only for types that currently exist in data
+  const opts = allTypeOptions().filter(t => used.has(t.value));
+  // stable order: unit, project, then other labels
+  opts.sort((a, b) => {
+    const rank = v => (v === "unit" ? 0 : v === "project" ? 1 : 2);
+    const ra = rank(a.value), rb = rank(b.value);
+    if (ra !== rb) return ra - rb;
+    return String(a.label).localeCompare(String(b.label), "fa");
+  });
+  let html = `<button class="tab" data-view="all">همه</button>`;
+  opts.forEach(t => {
+    html += `<button class="tab" data-view="${escapeAttr(t.value)}">${escapeAttr(tabLabelForType(t))}</button>`;
+  });
+  tabs.innerHTML = html;
+  let activeView = prev;
+  if (activeView === "units") activeView = "unit";
+  if (activeView === "projects") activeView = "project";
+  if (activeView === "admin") activeView = "all";
+  const valid = activeView === "all" || opts.some(t => t.value === activeView);
+  if (!valid) activeView = "all";
+  currentView = activeView;
+  tabs.querySelectorAll(".tab").forEach(tab => {
+    tab.classList.toggle("active", tab.dataset.view === activeView);
+    tab.addEventListener("click", () => {
+      tabs.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
+      tab.classList.add("active");
+      currentView = tab.dataset.view;
+      setAdminMode(false);
+    });
+  });
 }
 
 function typeSelectHtml(selected) {
+  // plain text like other columns; store/display the type label (or raw value)
   const opts = allTypeOptions();
-  // ensure current value is present even if unknown
-  if (selected && !opts.some(t => t.value === selected)) {
-    opts.push({ value: selected, label: selected });
+  const current = opts.find(t => t.value === selected);
+  const display = current ? current.label : (selected || "");
+  return `<input data-field="type" value="${escapeAttr(display)}" />`;
+}
+
+
+function ensureTypeDatalist() {
+  let dl = document.getElementById("typeDatalist");
+  if (!dl) {
+    dl = document.createElement("datalist");
+    dl.id = "typeDatalist";
+    document.body.appendChild(dl);
   }
-  const options = opts.map(t =>
-    `<option value="${escapeAttr(t.value)}" ${t.value === selected ? "selected" : ""}>${escapeAttr(t.label)}</option>`
+  const opts = allTypeOptions();
+  dl.innerHTML = opts.map(t =>
+    `<option value="${escapeAttr(t.label)}"></option>`
   ).join("");
-  // special option to add new type from inside the column
-  return `<select data-field="type" class="type-select">${options}<option value="__new__">＋ نوع جدید…</option></select>`;
+}
+
+function resolveTypeInput(inp) {
+  try {
+    const raw = String((inp && inp.value) || "").trim();
+    if (!raw) return "unit";
+    const opts = allTypeOptions();
+    const byLabel = opts.find(t => t.label === raw || t.value === raw);
+    if (byLabel) return byLabel.value;
+    const value = slugifyTypeValue(raw);
+    if (!CUSTOM_TYPES.some(t => t.value === value || t.label === raw)) {
+      CUSTOM_TYPES.push({ value, label: raw });
+      saveCustomTypes();
+      try { refreshTypeFilterOptions(); } catch (_) {}
+      try { updateTypeListLabel(); } catch (_) {}
+      try { ensureTypeDatalist(); } catch (_) {}
+    }
+    return value;
+  } catch (e) {
+    console.error(e);
+    return "unit";
+  }
+}
+
+function updateTypeListLabel() {
+  const el = document.getElementById("typeListLabel");
+  if (!el) return;
+  el.textContent = allTypeOptions().map(t => t.label).join("، ");
 }
 
 function ensureTypeRegistered(value, label) {
@@ -2485,42 +2854,26 @@ function ensureTypeRegistered(value, label) {
 
 function bindTypeSelectHandlers(root) {
   const scope = root || document;
-  scope.querySelectorAll('select[data-field="type"]').forEach(sel => {
-    if (sel.dataset.typeBound) return;
-    sel.dataset.typeBound = "1";
-    sel.addEventListener("change", () => {
-      if (sel.value !== "__new__") return;
-      const label = prompt("نام نوع جدید را وارد کنید (مثلاً: انبار، ستاد، …):");
-      if (label == null || !String(label).trim()) {
-        // revert to first option
-        sel.value = "unit";
-        return;
-      }
-      const trimmed = String(label).trim();
-      const existing = allTypeOptions().find(t => t.label === trimmed || t.value === trimmed);
-      if (existing) {
-        sel.value = existing.value;
-        return;
-      }
-      const value = slugifyTypeValue(trimmed);
-      CUSTOM_TYPES.push({ value, label: trimmed });
-      saveCustomTypes();
-      refreshTypeFilterOptions();
-      // rebuild this select options and select the new value
-      const opts = allTypeOptions();
-      sel.innerHTML = opts.map(t =>
-        `<option value="${escapeAttr(t.value)}">${escapeAttr(t.label)}</option>`
-      ).join("") + `<option value="__new__">＋ نوع جدید…</option>`;
-      sel.value = value;
-      // also refresh other row selects so new type appears everywhere
-      renderEditTable();
-      showStatus("نوع «" + trimmed + "» اضافه و انتخاب شد.", "ok");
-    });
+  scope.querySelectorAll('input[data-field="type"]').forEach(inp => {
+    if (inp.dataset.typeBound) return;
+    inp.dataset.typeBound = "1";
+    const commit = () => {
+      const raw = String(inp.value || "").trim();
+      if (!raw) { inp.value = "واحد"; return; }
+      const value = resolveTypeInput(inp);
+      // show label consistently
+      inp.value = typeLabel(value) || raw;
+    };
+    inp.addEventListener("change", commit);
+    inp.addEventListener("blur", commit);
   });
 }
 
+
+
 let DATA = null;
 let currentView = "all"; // all | units | projects | admin
+let lastNewRowIndex = -1;
 
 
 function persianizeData(data) {
@@ -2553,37 +2906,172 @@ function loadData() {
 
 function saveData() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA));
+  syncTypesFromData();
   showStatus("تغییرات ذخیره شد.", "ok");
   renderAll();
 }
 
-function resetData() {
-  if (!confirm("همه تغییرات حذف و به داده اولیه بازگردد؟")) return;
+async function resetData() {
+  const ok = await uiConfirm("همه تغییرات حذف و به داده اولیه بازگردد؟", "بازگشت به داده اولیه", "warn");
+  if (!ok) return;
   DATA = persianizeData(JSON.parse(JSON.stringify(DEFAULT_DATA)));
   localStorage.removeItem(STORAGE_KEY);
+  CUSTOM_TYPES = [];
+  saveCustomTypes();
   showStatus("داده به حالت اولیه بازگشت.", "info");
-  refreshTypeFilterOptions();
+  syncTypesFromData();
   renderAll();
 }
 
-function clearAllData() {
-  if (!confirm("تمام شماره‌ها و واحدها پاک شوند؟ این عمل قابل بازگشت نیست مگر با «بازگشت به داده اولیه».")) return;
-  if (!confirm("تأیید نهایی: همه داده‌ها خالی شوند؟")) return;
+async function clearAllData() {
+  const ok1 = await uiConfirm("تمام شماره‌ها و واحدها پاک شوند؟\nاین عمل قابل بازگشت نیست مگر با «بازگشت به داده اولیه».", "خالی کردن داده‌ها", "danger");
+  if (!ok1) return;
+  const ok2 = await uiConfirm("تأیید نهایی: همه داده‌ها خالی شوند؟", "تأیید نهایی", "danger");
+  if (!ok2) return;
   DATA = {
     company: (DATA && DATA.company) ? DATA.company : DEFAULT_DATA.company,
     groups: []
   };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA));
+  CUSTOM_TYPES = [];
+  saveCustomTypes();
   showStatus("همه داده‌ها خالی شد.", "ok");
-  refreshTypeFilterOptions();
+  syncTypesFromData();
   renderAll();
 }
 
 function showStatus(msg, type) {
+  // keep admin inline status + global toast
   const el = document.getElementById("statusMsg");
-  el.className = "status-msg " + type;
-  el.textContent = msg;
-  setTimeout(() => { el.className = "status-msg"; }, 4000);
+  if (el) {
+    el.className = "status-msg " + type;
+    el.textContent = msg;
+    setTimeout(() => { el.className = "status-msg"; }, 4000);
+  }
+  showToast(msg, type || "info");
+}
+
+function showToast(msg, type) {
+  const host = document.getElementById("toastHost");
+  if (!host) return;
+  const t = type || "info";
+  const icon = t === "ok" ? "✓" : (t === "err" ? "!" : "i");
+  const item = document.createElement("div");
+  item.className = "toast " + t;
+  item.innerHTML = `<div class="toast-icon">${icon}</div><div class="toast-body"></div><button type="button" class="toast-close" aria-label="بستن">×</button>`;
+  item.querySelector(".toast-body").textContent = msg;
+  const close = () => {
+    item.classList.add("hide");
+    setTimeout(() => item.remove(), 220);
+  };
+  item.querySelector(".toast-close").addEventListener("click", close);
+  host.appendChild(item);
+  setTimeout(close, 4200);
+}
+
+function uiDialog({ title, message, type, mode, defaultValue }) {
+  return new Promise(resolve => {
+    const host = document.getElementById("modalHost");
+    if (!host) {
+      if (mode === "confirm") resolve(window.confirm(message));
+      else if (mode === "prompt") resolve(window.prompt(message, defaultValue || ""));
+      else { window.alert(message); resolve(); }
+      return;
+    }
+    const kind = type || (mode === "confirm" ? "warn" : "info");
+    const icon = kind === "danger" ? "⚠" : (kind === "warn" ? "?" : (kind === "ok" ? "✓" : "ℹ"));
+    const overlay = document.createElement("div");
+    overlay.className = "modal-overlay";
+    overlay.innerHTML = `
+      <div class="modal-box" role="dialog" aria-modal="true">
+        <div class="modal-head ${kind}">
+          <div class="modal-head-icon">${icon}</div>
+          <h3></h3>
+        </div>
+        <div class="modal-body"><div class="modal-msg"></div></div>
+        <div class="modal-actions"></div>
+      </div>`;
+    overlay.querySelector("h3").textContent = title || "پیام";
+    const msgEl = overlay.querySelector(".modal-msg");
+    msgEl.textContent = message || "";
+    const actions = overlay.querySelector(".modal-actions");
+    const box = overlay.querySelector(".modal-box");
+
+    let input = null;
+    if (mode === "prompt") {
+      input = document.createElement("input");
+      input.className = "modal-input";
+      input.type = "text";
+      input.value = defaultValue || "";
+      input.placeholder = "اینجا بنویسید...";
+      overlay.querySelector(".modal-body").appendChild(input);
+    }
+
+    function finish(val) {
+      overlay.classList.add("hide");
+      setTimeout(() => overlay.remove(), 180);
+      resolve(val);
+    }
+
+    if (mode === "confirm") {
+      const cancel = document.createElement("button");
+      cancel.type = "button";
+      cancel.className = "btn ghost";
+      cancel.textContent = "انصراف";
+      cancel.addEventListener("click", () => finish(false));
+      const ok = document.createElement("button");
+      ok.type = "button";
+      ok.className = "btn " + (kind === "danger" ? "danger-fill" : "primary");
+      ok.textContent = "تأیید";
+      ok.addEventListener("click", () => finish(true));
+      actions.appendChild(cancel);
+      actions.appendChild(ok);
+      setTimeout(() => ok.focus(), 30);
+    } else if (mode === "prompt") {
+      const cancel = document.createElement("button");
+      cancel.type = "button";
+      cancel.className = "btn ghost";
+      cancel.textContent = "انصراف";
+      cancel.addEventListener("click", () => finish(null));
+      const ok = document.createElement("button");
+      ok.type = "button";
+      ok.className = "btn primary";
+      ok.textContent = "ثبت";
+      const submit = () => finish(input.value);
+      ok.addEventListener("click", submit);
+      input.addEventListener("keydown", e => {
+        if (e.key === "Enter") submit();
+        if (e.key === "Escape") finish(null);
+      });
+      actions.appendChild(cancel);
+      actions.appendChild(ok);
+      setTimeout(() => { input.focus(); input.select(); }, 30);
+    } else {
+      const ok = document.createElement("button");
+      ok.type = "button";
+      ok.className = "btn primary";
+      ok.textContent = "باشه";
+      ok.addEventListener("click", () => finish());
+      actions.appendChild(ok);
+      setTimeout(() => ok.focus(), 30);
+    }
+
+    overlay.addEventListener("click", e => {
+      if (e.target === overlay) finish(mode === "confirm" ? false : (mode === "prompt" ? null : undefined));
+    });
+    box.addEventListener("click", e => e.stopPropagation());
+    host.appendChild(overlay);
+  });
+}
+
+function uiAlert(message, title, type) {
+  return uiDialog({ title: title || "توجه", message, type: type || "info", mode: "alert" });
+}
+function uiConfirm(message, title, type) {
+  return uiDialog({ title: title || "تأیید", message, type: type || "warn", mode: "confirm" });
+}
+function uiPrompt(message, defaultValue, title) {
+  return uiDialog({ title: title || "ورود اطلاعات", message, type: "info", mode: "prompt", defaultValue: defaultValue || "" });
 }
 
 const FA_DIGITS = "۰۱۲۳۴۵۶۷۸۹";
@@ -2685,8 +3173,10 @@ function renderDirectory() {
   if (mode === "cards") {
     html += '<div class="cards-grid">';
     DATA.groups.forEach(g => {
-      if (currentView === "units" && g.type !== "unit") return;
-      if (currentView === "projects" && g.type !== "project") return;
+      if (currentView && currentView !== "all" && currentView !== "admin") {
+        const cv = currentView === "units" ? "unit" : (currentView === "projects" ? "project" : currentView);
+        if (g.type !== cv) return;
+      }
       let people = g.people || [];
       if (q) {
         const titleMatch = normalize(g.title).includes(q) || normalize(g.code || "").includes(q);
@@ -2706,7 +3196,7 @@ function renderDirectory() {
       html += `<div class="group-body-wrap"><div class="group-body">`;
       people.forEach(p => {
         const badgeClass = isProj ? "pc-badge project" : "pc-badge";
-        const typeLabel = isProj ? "پروژه" : "واحد";
+        const typeLbl = typeLabel(g.type) || (isProj ? "پروژه" : "واحد");
         const gi = genderInfo(p.name);
         html += `<div class="person-card">
           <div class="pc-top">
@@ -2715,7 +3205,7 @@ function renderDirectory() {
           </div>
           <div class="pc-number">${toPersianDigits(p.number)}</div>
           <div class="pc-meta">
-            <span class="${badgeClass}">${typeLabel}</span>
+            <span class="${badgeClass}">${typeLbl}</span>
             <span>${g.title}</span>
             ${g.code ? `<span>${toPersianDigits(g.code)}</span>` : ""}
           </div>
@@ -2726,8 +3216,10 @@ function renderDirectory() {
     html += "</div>";
   } else {
     DATA.groups.forEach(g => {
-      if (currentView === "units" && g.type !== "unit") return;
-      if (currentView === "projects" && g.type !== "project") return;
+      if (currentView && currentView !== "all" && currentView !== "admin") {
+        const cv = currentView === "units" ? "unit" : (currentView === "projects" ? "project" : currentView);
+        if (g.type !== cv) return;
+      }
       let people = g.people || [];
       if (q) {
         const titleMatch = normalize(g.title).includes(q) || normalize(g.code || "").includes(q);
@@ -2821,7 +3313,7 @@ function renderEditTable() {
   });
 
   tbody.innerHTML = rows.map((r) => `
-    <tr data-idx="${r._i}">
+    <tr data-idx="${r._i}" class="${r._i === lastNewRowIndex ? "row-new" : ""}">
       <td class="type-col">${typeSelectHtml(r.type)}</td>
       <td><input data-field="title" value="${escapeAttr(r.title)}" /></td>
       <td class="code-col"><input data-field="code" value="${escapeAttr(toPersianDigits(r.code))}" /></td>
@@ -2837,12 +3329,16 @@ function renderEditTable() {
       const allRows = flatRows();
       const target = allRows[idx];
       const label = target ? ((target.name || "") + " — " + (target.number || "")) : "";
-      if (!confirm("آیا از حذف این رکورد مطمئن هستید؟\n" + label)) return;
-      if (!confirm("تأیید نهایی: این رکورد حذف شود؟")) return;
-      allRows.splice(idx, 1);
-      DATA.groups = rowsToGroups(allRows);
-      renderEditTable();
-      renderStats();
+      (async () => {
+        const ok1 = await uiConfirm("آیا از حذف این رکورد مطمئن هستید؟\n" + label, "حذف رکورد", "danger");
+        if (!ok1) return;
+        const ok2 = await uiConfirm("تأیید نهایی: این رکورد حذف شود؟", "تأیید نهایی", "danger");
+        if (!ok2) return;
+        allRows.splice(idx, 1);
+        DATA.groups = rowsToGroups(allRows);
+        renderEditTable();
+        renderStats();
+      })();
     });
   });
   tbody.querySelectorAll('[data-field="code"], [data-field="number"]').forEach(inp => {
@@ -2852,6 +3348,15 @@ function renderEditTable() {
   });
   bindTypeSelectHandlers(tbody);
   bindPersianNumberInputs();
+  // clear "new row" highlight when user types in any field of that row or leaves it
+  tbody.querySelectorAll("tr.row-new input, tr.row-new select").forEach(el => {
+    const clear = () => {
+      lastNewRowIndex = -1;
+      const tr = el.closest("tr");
+      if (tr) tr.classList.remove("row-new");
+    };
+    el.addEventListener("input", clear, { once: true });
+  });
 }
 
 function bindEditFilters() {
@@ -2872,11 +3377,12 @@ function escapeAttr(s) {
 function readEditTable() {
   const rows = [];
   document.querySelectorAll("#editTableBody tr").forEach(tr => {
-    const type = tr.querySelector('[data-field="type"]').value;
-    const title = tr.querySelector('[data-field="title"]').value.trim();
-    const code = tr.querySelector('[data-field="code"]').value.trim();
-    const number = tr.querySelector('[data-field="number"]').value.trim();
-    const name = tr.querySelector('[data-field="name"]').value.trim();
+    const typeEl = tr.querySelector('[data-field="type"]');
+    const type = typeEl ? (typeEl.tagName === "INPUT" ? resolveTypeInput(typeEl) : typeEl.value) : "unit";
+    const title = (tr.querySelector('[data-field="title"]') || {}).value.trim();
+    const code = (tr.querySelector('[data-field="code"]') || {}).value.trim();
+    const number = (tr.querySelector('[data-field="number"]') || {}).value.trim();
+    const name = (tr.querySelector('[data-field="name"]') || {}).value.trim();
     if (!title && !name && !number) return;
     rows.push({ type, title, code, number, name });
   });
@@ -2899,6 +3405,7 @@ function rowsToGroups(rows) {
 
 function applyTableToData() {
   // merge visible edited rows back into full dataset (respect filters)
+  if (!DATA) return;
   const all = flatRows();
   document.querySelectorAll("#editTableBody tr").forEach(tr => {
     const idx = +tr.dataset.idx;
@@ -2909,9 +3416,19 @@ function applyTableToData() {
       const el = tr.querySelector(sel);
       return el && el.value != null ? String(el.value).trim() : "";
     };
-    let typeVal = typeEl.value;
-    if (typeVal === "__new__") typeVal = "unit";
-    ensureTypeRegistered(typeVal, typeLabel(typeVal));
+    let typeVal = "unit";
+    try {
+      if (typeEl.tagName === "INPUT") {
+        typeVal = resolveTypeInput(typeEl) || "unit";
+      } else {
+        typeVal = typeEl.value || "unit";
+        if (typeVal === "__new__") typeVal = "unit";
+      }
+      ensureTypeRegistered(typeVal, typeLabel(typeVal));
+    } catch (e) {
+      console.error(e);
+      typeVal = "unit";
+    }
     const row = {
       type: typeVal,
       title: val('[data-field="title"]'),
@@ -2935,36 +3452,61 @@ function renderAll() {
 
 /* ===================== TABS / SEARCH ===================== */
 function setAdminMode(on) {
-  var activeTab = document.querySelector(".tab.active"); currentView = on ? "admin" : ((activeTab && activeTab.dataset.view) || "all");
+  var activeTab = document.querySelector(".tab.active");
+  currentView = on ? "admin" : ((activeTab && activeTab.dataset.view) || "all");
   document.getElementById("view-directory").classList.toggle("active", !on);
   document.getElementById("view-admin").classList.toggle("active", on);
+  document.body.classList.toggle("admin-open", !!on);
   const sb = document.getElementById("searchBox");
   const ft = document.getElementById("filterTabs");
   if (sb) sb.style.display = on ? "none" : "flex";
   if (ft) ft.style.display = on ? "none" : "flex";
   const ab = document.getElementById("adminToggle");
-  if (ab) ab.classList.toggle("active-admin", on);
+  if (ab) {
+    ab.classList.toggle("active-admin", on);
+    ab.title = on ? "بستن مدیریت داده و بازگشت" : "مدیریت داده";
+    ab.setAttribute("aria-label", ab.title);
+  }
   if (on) {
     renderStats();
     renderEditTable();
+    // scroll admin into view
+    const panel = document.querySelector(".admin-panel");
+    if (panel) panel.scrollIntoView({ block: "start", behavior: "smooth" });
   } else {
+    refreshMainFilterTabs();
     renderDirectory();
   }
 }
 
-document.querySelectorAll(".tab").forEach(tab => {
-  tab.addEventListener("click", () => {
-    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-    tab.classList.add("active");
-    currentView = tab.dataset.view;
-    setAdminMode(false);
-  });
-});
+function exitAdminMode() {
+  setAdminMode(false);
+  // ensure a normal directory tab is active
+  const tabs = document.getElementById("filterTabs");
+  if (tabs && !tabs.querySelector(".tab.active")) {
+    const all = tabs.querySelector('[data-view="all"]');
+    if (all) all.classList.add("active");
+  }
+}
+
+// Main filter tabs are (re)bound in refreshMainFilterTabs()
 
 document.getElementById("adminToggle").addEventListener("click", () => {
   const goingAdmin = currentView !== "admin";
   setAdminMode(goingAdmin);
 });
+
+["btnAdminExitTop", "btnAdminExitBottom", "btnAdminExitSticky"].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener("click", exitAdminMode);
+});
+const stickySave = document.getElementById("btnAdminSaveSticky");
+if (stickySave) {
+  stickySave.addEventListener("click", () => {
+    applyTableToData();
+    saveData();
+  });
+}
 
 document.getElementById("searchInput").addEventListener("input", () => {
   if (currentView !== "admin") renderDirectory();
@@ -3006,17 +3548,52 @@ document.getElementById("btnReset").addEventListener("click", resetData);
 document.getElementById("btnClearAll").addEventListener("click", clearAllData);
 
 
-document.getElementById("btnAddType").addEventListener("click", addNewTypeInteractive);
+
 
 document.getElementById("btnAddRow").addEventListener("click", () => {
-  applyTableToData();
-  if (!DATA.groups.length) {
-    DATA.groups.push({ type: "unit", title: "واحد جدید", code: "", people: [{ number: "", name: "" }] });
+  try {
+    applyTableToData();
+  } catch (e) {
+    console.error("applyTableToData", e);
+  }
+  // clear filters so the new blank row is always visible
+  ["fType", "fTitle", "fCode", "fNumber", "fName"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = "";
+  });
+  if (!DATA.groups || !DATA.groups.length) {
+    DATA.groups = [{ type: "unit", title: "واحد جدید", code: "", people: [{ number: "", name: "" }] }];
   } else {
     const last = DATA.groups[DATA.groups.length - 1];
+    if (!last.people) last.people = [];
     last.people.push({ number: "", name: "" });
   }
+  // mark the new blank row (last flat index)
+  lastNewRowIndex = flatRows().length - 1;
   renderEditTable();
+  // scroll to highlighted row
+  requestAnimationFrame(() => {
+    const wrap = document.querySelector(".edit-table-wrap");
+    const row = document.querySelector("#editTableBody tr.row-new");
+    if (row) {
+      row.scrollIntoView({ block: "center", behavior: "smooth" });
+      const typeInp = row.querySelector('input[data-field="type"]') || row.querySelector("input");
+      if (typeInp) {
+        try {
+          typeInp.focus();
+          if (typeof typeInp.select === "function") typeInp.select();
+        } catch (_) {}
+      }
+    } else if (wrap) {
+      wrap.scrollTop = wrap.scrollHeight;
+    }
+  });
+  // auto-clear highlight after a while / next edit
+  setTimeout(() => {
+    if (lastNewRowIndex < 0) return;
+    const el = document.querySelector("#editTableBody tr.row-new");
+    // keep class until user edits or 8s passes
+  }, 0);
 });
 
 
@@ -3123,7 +3700,7 @@ document.getElementById("btnExcel").addEventListener("click", async () => {
   setBusy(btn, true);
   try {
     applyTableToData();
-    if (!DATA.groups || !DATA.groups.length) { alert("داده‌ای برای خروجی وجود ندارد."); return; }
+    if (!DATA.groups || !DATA.groups.length) { uiAlert("داده‌ای برای خروجی وجود ندارد.", "خروجی", "info"); return; }
 
     const wb = new ExcelJS.Workbook();
     wb.creator = "آسفالت طوس";
@@ -3317,7 +3894,7 @@ document.getElementById("btnExcel").addEventListener("click", async () => {
     saveAs(blob, "دفترچه_تلفن_آسفالت_طوس.xlsx");
   } catch (e) {
     console.error(e);
-    alert("خطا در ساخت فایل اکسل: " + (e.message || e));
+    uiAlert("خطا در ساخت فایل اکسل: " + (e.message || e), "خطا", "err");
   } finally {
     setBusy(btn, false);
   }
@@ -3363,7 +3940,7 @@ document.getElementById("btnWord").addEventListener("click", () => {
     a.href = URL.createObjectURL(blob);
     a.download = "دفترچه_تلفن_آسفالت_طوس.doc";
     a.click();
-  } catch (e) { alert("خطا در Word"); console.error(e); }
+  } catch (e) { uiAlert("خطا در Word", "خطا", "err"); console.error(e); }
   finally { setBusy(btn, false); }
 });
 
@@ -3408,11 +3985,11 @@ document.getElementById("btnPdf").addEventListener("click", () => {
     }).catch(() => {
       document.body.removeChild(container);
       setBusy(btn, false);
-      alert("خطا در PDF");
+      uiAlert("خطا در PDF", "خطا", "err");
     });
   } catch (e) {
     setBusy(btn, false);
-    alert("خطا در PDF");
+    uiAlert("خطا در PDF", "خطا", "err");
   }
 });
 
@@ -3530,7 +4107,7 @@ document.getElementById("collapseToggle").addEventListener("click", () => {
 
 loadCustomTypes();
 loadData();
-refreshTypeFilterOptions();
+syncTypesFromData();
 renderAll();
 bindPersianNumberInputs();
 </script>
