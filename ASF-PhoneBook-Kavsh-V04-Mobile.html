@@ -605,9 +605,41 @@
       .stats { gap: 8px; }
       .stat-card { padding: 8px 12px; font-size: 0.8rem; }
       .btn { padding: 8px 12px; font-size: 0.8rem; }
-      .edit-table-wrap { display: none !important; }
-      .edit-mobile-filters { display: flex !important; }
-      .edit-cards { display: flex !important; max-height: none; }
+      /* Keep edit table with horizontal scroll on phones */
+      .edit-table-wrap {
+        display: block !important;
+        max-width: 100%;
+        max-height: 50vh;
+        overflow-x: auto !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+      }
+      .edit-table {
+        min-width: 640px; /* force horizontal scroll so all columns reachable */
+        width: max-content;
+        table-layout: auto;
+      }
+      .edit-table th,
+      .edit-table td {
+        white-space: nowrap;
+      }
+      .edit-table .type-col { width: 90px; min-width: 90px; }
+      .edit-table .code-col { width: 100px; min-width: 100px; }
+      .edit-table .num-col { width: 120px; min-width: 120px; }
+      .edit-table .actions-col { width: 48px; min-width: 48px; }
+      .edit-table input,
+      .edit-table select {
+        min-width: 0;
+        font-size: 0.82rem;
+      }
+      /* Hide mobile card UI leftovers */
+      .edit-mobile-filters { display: none !important; }
+      .edit-cards { display: none !important; }
+      /* Hide Excel / Word / PDF exports on phone */
+      .admin-export-section { display: none !important; }
+      .admin-export-actions { display: none !important; }
       .admin-actions { flex-direction: column; align-items: stretch; }
       .admin-actions .btn, .admin-actions .file-input-wrap { width: 100%; justify-content: center; }
       .add-row-bar { flex-direction: column; align-items: stretch; }
@@ -713,6 +745,28 @@
       .float-btn { width: 40px !important; height: 40px !important; }
     }
     
+
+
+
+    /* Phone landscape: ensure edit table shows at least ~2 data rows */
+    @media (max-width: 900px) and (orientation: landscape) {
+      .edit-table-wrap {
+        max-height: none !important;
+        min-height: 140px; /* header + filter + ~2 rows */
+        height: auto;
+      }
+      #view-admin .admin-panel {
+        padding-bottom: 24px;
+      }
+      .edit-table tbody tr {
+        min-height: 40px;
+      }
+      .edit-table td,
+      .edit-table th {
+        padding-top: 8px;
+        padding-bottom: 8px;
+      }
+    }
 
     /* View mode toggle */
     .view-mode-bar { display: none !important; }
@@ -1116,9 +1170,9 @@
         <div class="stats" id="dataStats"></div>
 
         <!-- Export -->
-        <div class="admin-section">
+        <div class="admin-section admin-export-section">
           <h3>📤 خروجی فایل</h3>
-          <div class="admin-actions">
+          <div class="admin-actions admin-export-actions">
             <button class="btn success" id="btnExcel">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
               Excel (.xlsx)
@@ -1160,7 +1214,7 @@
         <!-- Table editor -->
         <div class="admin-section">
           <h3>✏️ ویرایش جدولی</h3>
-          <p class="hint" style="margin-bottom:8px;">مستقیماً ویرایش کنید، ردیف اضافه/حذف کنید، سپس «ذخیره تغییرات» را بزنید. در موبایل به‌صورت کارت عمودی نمایش داده می‌شود.</p>
+          <p class="hint" style="margin-bottom:8px;">مستقیماً در جدول ویرایش کنید، ردیف اضافه/حذف کنید، سپس «ذخیره تغییرات» را بزنید. در موبایل می‌توانید جدول را افقی اسکرول کنید.</p>
 
           <!-- Mobile filters (portrait) -->
           <div class="edit-mobile-filters" id="editMobileFilters">
@@ -2381,7 +2435,7 @@ function bindPersianNumberInputs() {
     search.dataset.faBound = "1";
     search.addEventListener("input", persianizeTyping);
   }
-  document.querySelectorAll("#editTableBody input[data-field='code'], #editTableBody input[data-field='number'], #editCards input[data-field='code'], #editCards input[data-field='number'], #fCode, #fNumber, #fCodeM, #fNumberM").forEach(inp => {
+  document.querySelectorAll("#editTableBody input[data-field='code'], #editTableBody input[data-field='number'], #fCode, #fNumber").forEach(inp => {
     if (inp.dataset.faBound) return;
     inp.dataset.faBound = "1";
     inp.addEventListener("input", persianizeTyping);
@@ -2554,30 +2608,19 @@ function flatRows() {
   return rows;
 }
 
-function isMobileEdit() {
-  return window.matchMedia("(max-width: 768px)").matches;
-}
-
 function getEditFilters() {
-  const mobile = isMobileEdit();
-  const typeEl = document.getElementById(mobile ? "fTypeM" : "fType");
-  const titleEl = document.getElementById(mobile ? "fTitleM" : "fTitle");
-  const codeEl = document.getElementById(mobile ? "fCodeM" : "fCode");
-  const numberEl = document.getElementById(mobile ? "fNumberM" : "fNumber");
-  const nameEl = document.getElementById(mobile ? "fNameM" : "fName");
   return {
-    type: (typeEl && typeEl.value) || "",
-    title: normalize((titleEl && titleEl.value) || ""),
-    code: normalize((codeEl && codeEl.value) || ""),
-    number: normalize((numberEl && numberEl.value) || ""),
-    name: normalize((nameEl && nameEl.value) || "")
+    type: (document.getElementById("fType") || {}).value || "",
+    title: normalize((document.getElementById("fTitle") || {}).value || ""),
+    code: normalize((document.getElementById("fCode") || {}).value || ""),
+    number: normalize((document.getElementById("fNumber") || {}).value || ""),
+    name: normalize((document.getElementById("fName") || {}).value || "")
   };
 }
 
 function renderEditTable() {
   const tbody = document.getElementById("editTableBody");
-  const cardsRoot = document.getElementById("editCards");
-  if (!tbody && !cardsRoot) return;
+  if (!tbody) return;
   const filters = getEditFilters();
   let rows = flatRows();
   rows = rows.map((r, i) => Object.assign({}, r, { _i: i }));
@@ -2590,9 +2633,7 @@ function renderEditTable() {
     return true;
   });
 
-  // Desktop table
-  if (tbody) {
-    tbody.innerHTML = rows.map((r) => `
+  tbody.innerHTML = rows.map((r) => `
     <tr data-idx="${r._i}">
       <td class="type-col">
         <select data-field="type">
@@ -2608,93 +2649,31 @@ function renderEditTable() {
     </tr>
   `).join("");
 
-    tbody.querySelectorAll(".btn-del").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const idx = +btn.dataset.del;
-        const allRows = flatRows();
-        const target = allRows[idx];
-        const label = target ? ((target.name || "") + " — " + (target.number || "")) : "";
-        if (!confirm("آیا از حذف این رکورد مطمئن هستید؟\n" + label)) return;
-        if (!confirm("تأیید نهایی: این رکورد حذف شود؟")) return;
-        allRows.splice(idx, 1);
-        DATA.groups = rowsToGroups(allRows);
-        renderEditTable();
-        renderStats();
-      });
+  tbody.querySelectorAll(".btn-del").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const idx = +btn.dataset.del;
+      const allRows = flatRows();
+      const target = allRows[idx];
+      const label = target ? ((target.name || "") + " — " + (target.number || "")) : "";
+      if (!confirm("آیا از حذف این رکورد مطمئن هستید؟\n" + label)) return;
+      if (!confirm("تأیید نهایی: این رکورد حذف شود؟")) return;
+      allRows.splice(idx, 1);
+      DATA.groups = rowsToGroups(allRows);
+      renderEditTable();
+      renderStats();
     });
-    tbody.querySelectorAll('[data-field="code"], [data-field="number"]').forEach(inp => {
-      const toFa = () => { inp.value = toPersianDigits(inp.value); };
-      inp.addEventListener("blur", toFa);
-      inp.addEventListener("change", toFa);
-    });
-  }
-
-  // Mobile cards
-  if (cardsRoot) {
-    if (!rows.length) {
-      cardsRoot.innerHTML = '<div class="edit-empty">رکوردی یافت نشد. فیلتر را تغییر دهید یا ردیف جدید اضافه کنید.</div>';
-    } else {
-      cardsRoot.innerHTML = rows.map((r) => `
-      <div class="edit-card" data-idx="${r._i}">
-        <div class="ec-row ec-2col">
-          <div>
-            <div class="ec-label">نوع</div>
-            <select data-field="type">
-              <option value="unit" ${r.type === "unit" ? "selected" : ""}>واحد</option>
-              <option value="project" ${r.type === "project" ? "selected" : ""}>پروژه</option>
-            </select>
-          </div>
-          <div>
-            <div class="ec-label">کد واحد</div>
-            <input data-field="code" value="${escapeAttr(toPersianDigits(r.code))}" />
-          </div>
-        </div>
-        <div class="ec-row">
-          <div class="ec-label">واحد / پروژه</div>
-          <input data-field="title" value="${escapeAttr(r.title)}" />
-        </div>
-        <div class="ec-row">
-          <div class="ec-label">شماره داخلی</div>
-          <input data-field="number" value="${escapeAttr(toPersianDigits(r.number))}" style="direction:ltr;text-align:center" />
-        </div>
-        <div class="ec-row">
-          <div class="ec-label">نام و نام خانوادگی</div>
-          <input data-field="name" value="${escapeAttr(r.name)}" />
-        </div>
-        <div class="ec-actions">
-          <button type="button" class="btn-del-card" data-del="${r._i}">حذف رکورد</button>
-        </div>
-      </div>
-    `).join("");
-
-      cardsRoot.querySelectorAll(".btn-del-card").forEach(btn => {
-        btn.addEventListener("click", () => {
-          const idx = +btn.dataset.del;
-          const allRows = flatRows();
-          const target = allRows[idx];
-          const label = target ? ((target.name || "") + " — " + (target.number || "")) : "";
-          if (!confirm("آیا از حذف این رکورد مطمئن هستید؟\n" + label)) return;
-          if (!confirm("تأیید نهایی: این رکورد حذف شود؟")) return;
-          allRows.splice(idx, 1);
-          DATA.groups = rowsToGroups(allRows);
-          renderEditTable();
-          renderStats();
-        });
-      });
-      cardsRoot.querySelectorAll('[data-field="code"], [data-field="number"]').forEach(inp => {
-        const toFa = () => { inp.value = toPersianDigits(inp.value); };
-        inp.addEventListener("blur", toFa);
-        inp.addEventListener("change", toFa);
-      });
-    }
-  }
-
+  });
+  tbody.querySelectorAll('[data-field="code"], [data-field="number"]').forEach(inp => {
+    const toFa = () => { inp.value = toPersianDigits(inp.value); };
+    inp.addEventListener("blur", toFa);
+    inp.addEventListener("change", toFa);
+  });
   bindPersianNumberInputs();
 }
 
 function bindEditFilters() {
   bindPersianNumberInputs();
-  ["fType", "fTitle", "fCode", "fNumber", "fName", "fTypeM", "fTitleM", "fCodeM", "fNumberM", "fNameM"].forEach(id => {
+  ["fType", "fTitle", "fCode", "fNumber", "fName"].forEach(id => {
     const el = document.getElementById(id);
     if (!el || el.dataset.bound) return;
     el.dataset.bound = "1";
@@ -2738,11 +2717,7 @@ function rowsToGroups(rows) {
 function applyTableToData() {
   // merge visible edited rows back into full dataset (respect filters)
   const all = flatRows();
-  // Prefer mobile cards on narrow screens; otherwise desktop table rows
-  const source = isMobileEdit()
-    ? document.querySelectorAll("#editCards .edit-card")
-    : document.querySelectorAll("#editTableBody tr");
-  source.forEach(tr => {
+  document.querySelectorAll("#editTableBody tr").forEach(tr => {
     const idx = +tr.dataset.idx;
     if (Number.isNaN(idx) || idx < 0) return;
     const typeEl = tr.querySelector('[data-field="type"]');
@@ -2763,7 +2738,6 @@ function applyTableToData() {
   });
   DATA.groups = rowsToGroups(all);
 }
-
 
 
 function renderAll() {
