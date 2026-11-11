@@ -838,8 +838,9 @@
       /* Hide mobile card UI leftovers */
       .edit-mobile-filters { display: none !important; }
       .edit-cards { display: none !important; }
-      /* Hide Excel / Word / PDF on phone — keep JSON backup */
-      #btnExcel, #btnWord, #btnPdf { display: none !important; }
+      /* Mobile: only JSON import/export — hide Excel / Word / PDF */
+      #btnExcel, #btnWord, #btnPdf,
+      .excel-import-wrap { display: none !important; }
       .admin-export-section { display: block !important; }
       .admin-export-actions { display: flex !important; }
       .admin-actions { flex-direction: column; align-items: stretch; }
@@ -847,50 +848,63 @@
       .add-row-bar { flex-direction: column; align-items: stretch; }
       .add-row-bar .btn { width: 100%; justify-content: center; }
 
-      /* bottom handle dock */
+      /* Keep footer text clear of the floating dock */
+      .footer {
+        padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
+      }
+      .container {
+        padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px)) !important;
+      }
+
+      /* Corner FAB dock — does not sit on centered footer text */
       .float-controls {
         position: fixed !important;
         top: auto !important;
-        bottom: 12px !important;
-        left: 50% !important;
-        right: auto !important;
-        transform: translateX(-50%) !important;
-        width: auto !important;
-        max-width: calc(100vw - 20px);
-        height: 28px !important;
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 999px;
-        padding: 0 18px !important;
-        box-shadow: 0 8px 22px rgba(0,0,0,0.25);
+        bottom: calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+        left: auto !important;
+        right: 12px !important;
+        transform: none !important;
+        width: 48px !important;
+        height: 48px !important;
+        max-width: none;
+        background: linear-gradient(145deg, #0B1D36 0%, #163A5F 100%);
+        border: 1px solid rgba(255,90,0,0.45);
+        border-radius: 16px;
+        padding: 0 !important;
+        box-shadow: 0 10px 28px rgba(11,29,54,0.45), 0 0 0 1px rgba(255,255,255,0.06) inset;
         gap: 0 !important;
         z-index: 300;
-        flex-direction: row !important;
+        flex-direction: column !important;
         align-items: center;
         justify-content: center;
         overflow: hidden;
-        transition: height 0.32s cubic-bezier(.2,.8,.2,1),
-                    padding 0.32s cubic-bezier(.2,.8,.2,1),
+        transition: width 0.28s cubic-bezier(.2,.8,.2,1),
+                    height 0.28s cubic-bezier(.2,.8,.2,1),
+                    padding 0.28s cubic-bezier(.2,.8,.2,1),
                     border-radius 0.25s ease,
-                    box-shadow 0.25s ease;
+                    box-shadow 0.25s ease,
+                    background 0.25s ease;
       }
       .float-controls::before {
         content: "";
         display: block;
-        width: 36px;
-        height: 4px;
+        width: 18px;
+        height: 3px;
         border-radius: 999px;
-        background: rgba(255,255,255,0.35);
+        background: rgba(255,255,255,0.55);
+        box-shadow: 0 6px 0 rgba(255,255,255,0.55), 0 12px 0 rgba(255,255,255,0.55);
+        margin-bottom: 12px;
         flex-shrink: 0;
-        transition: opacity 0.2s ease, margin 0.2s ease;
+        transition: opacity 0.18s ease, height 0.18s ease, margin 0.18s ease, box-shadow 0.18s ease;
       }
       [data-theme="dark"] .float-controls {
-        background: #122033;
-        border-color: #24384f;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+        background: linear-gradient(145deg, #0A1524 0%, #163A5F 100%);
+        border-color: rgba(255,90,0,0.55);
+        box-shadow: 0 12px 32px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.05) inset;
       }
       [data-theme="dark"] .float-controls::before {
-        background: rgba(255,255,255,0.28);
+        background: rgba(255,255,255,0.45);
+        box-shadow: 0 6px 0 rgba(255,255,255,0.45), 0 12px 0 rgba(255,255,255,0.45);
       }
       .float-controls .float-btn {
         width: 0 !important;
@@ -901,35 +915,61 @@
         border: none !important;
         box-shadow: none !important;
         background: transparent !important;
+        color: #fff !important;
         overflow: hidden;
         pointer-events: none;
         transition: opacity 0.18s ease, width 0.28s ease, height 0.28s ease;
       }
       .float-controls .float-btn svg { width: 18px; height: 18px; }
       .float-controls.open {
-        height: 54px !important;
-        padding: 6px 12px !important;
-        border-radius: 18px;
+        width: auto !important;
+        height: 52px !important;
+        padding: 5px 8px !important;
+        border-radius: 16px;
         gap: 4px !important;
-        box-shadow: 0 12px 32px rgba(0,0,0,0.35);
+        flex-direction: row !important;
+        background: var(--card);
+        border: 1px solid var(--border);
+        box-shadow: 0 14px 36px rgba(0,0,0,0.35);
       }
       .float-controls.open::before {
         width: 0;
         height: 0;
         margin: 0;
         opacity: 0;
+        box-shadow: none;
       }
       .float-controls.open .float-btn {
-        width: 42px !important;
-        height: 42px !important;
+        width: 40px !important;
+        height: 40px !important;
         opacity: 1;
         pointer-events: auto;
+        border: 1px solid var(--border) !important;
+        background: var(--card) !important;
+        color: var(--text) !important;
+        border-radius: 50%;
+        box-shadow: var(--shadow) !important;
       }
       .float-controls.open .float-btn.admin.active-admin {
         background: #FF5A00 !important;
+        color: #fff !important;
+        border-color: #FF5A00 !important;
         border-radius: 50%;
       }
-      [data-theme="dark"] .float-btn { background: transparent !important; }
+      [data-theme="dark"] .float-controls.open {
+        background: #122033;
+        border-color: #24384f;
+      }
+      [data-theme="dark"] .float-controls.open .float-btn {
+        background: #0F1C2E !important;
+        border-color: #1E3048 !important;
+        color: #FF8A3D !important;
+      }
+      [data-theme="dark"] .float-controls.open .float-btn.admin.active-admin {
+        background: #FF5A00 !important;
+        color: #fff !important;
+        border-color: #FF5A00 !important;
+      }
     }
 
     @media (max-width: 400px) {
@@ -944,7 +984,7 @@
         max-width: 78px;
         font-size: 0.66rem;
       }
-      .float-btn { width: 40px !important; height: 40px !important; }
+      .float-controls.open .float-btn { width: 38px !important; height: 38px !important; }
     }
     
 
@@ -1003,17 +1043,24 @@
       .unit-header h2,
       .card-group .group-label h2 { font-size: 0.78rem !important; }
       .float-controls {
-        bottom: 6px !important;
-        height: 24px !important;
-        padding: 0 14px !important;
+        bottom: calc(8px + env(safe-area-inset-bottom, 0px)) !important;
+        right: 10px !important;
+        left: auto !important;
+        width: 42px !important;
+        height: 42px !important;
+        padding: 0 !important;
       }
       .float-controls.open {
+        width: auto !important;
         height: 46px !important;
-        padding: 4px 10px !important;
+        padding: 4px 8px !important;
       }
       .float-controls.open .float-btn {
         width: 36px !important;
         height: 36px !important;
+      }
+      .footer {
+        padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px)) !important;
       }
       .edit-table-wrap {
         max-height: none !important;
@@ -1562,7 +1609,7 @@
         <div class="admin-section">
           <h3>📥 به‌روزرسانی داده</h3>
           <div class="admin-actions">
-            <label class="btn primary file-input-wrap">
+            <label class="btn primary file-input-wrap excel-import-wrap">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
               بارگذاری Excel
               <input type="file" id="fileExcel" accept=".xlsx,.xls,.csv" />
