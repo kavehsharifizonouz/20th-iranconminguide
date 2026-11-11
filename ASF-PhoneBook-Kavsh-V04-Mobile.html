@@ -1025,12 +1025,14 @@
       .header .tabs { margin-top: 4px !important; gap: 4px !important; }
       .header .tab { padding: 3px 10px !important; font-size: 0.72rem !important; }
       .footer {
-        padding: 4px 8px !important;
+        padding: 3px 8px !important;
+        padding-bottom: 3px !important;
         font-size: 0.6rem !important;
         flex-shrink: 0;
       }
       .footer .address { display: none !important; }
-      .container { padding: 4px 10px 56px !important; }
+      /* More vertical room for middle content in landscape */
+      .container { padding: 4px 10px 12px !important; }
       .admin-sticky-bar { padding: 4px 10px !important; }
       .admin-sticky-bar .asb-sub { display: none !important; }
       .admin-sticky-bar .asb-title { font-size: 0.8rem !important; }
@@ -1042,44 +1044,46 @@
       }
       .unit-header h2,
       .card-group .group-label h2 { font-size: 0.78rem !important; }
+      /* Landscape mobile: same JSON-only rule (width can exceed 768px) */
+      #btnExcel, #btnWord, #btnPdf,
+      .excel-import-wrap { display: none !important; }
+      .admin-export-section { display: block !important; }
+      .admin-export-actions { display: flex !important; }
       .float-controls {
-        bottom: calc(8px + env(safe-area-inset-bottom, 0px)) !important;
+        bottom: calc(6px + env(safe-area-inset-bottom, 0px)) !important;
         right: 10px !important;
         left: auto !important;
-        width: 42px !important;
-        height: 42px !important;
+        width: 40px !important;
+        height: 40px !important;
         padding: 0 !important;
       }
       .float-controls.open {
         width: auto !important;
-        height: 46px !important;
+        height: 44px !important;
         padding: 4px 8px !important;
       }
       .float-controls.open .float-btn {
-        width: 36px !important;
-        height: 36px !important;
-      }
-      .footer {
-        padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px)) !important;
+        width: 34px !important;
+        height: 34px !important;
       }
       .edit-table-wrap {
         max-height: none !important;
-        min-height: 120px;
+        min-height: 80px;
         height: auto;
       }
       #view-admin .admin-panel {
-        padding: 10px !important;
-        padding-bottom: 16px !important;
-        margin-bottom: 8px !important;
+        padding: 8px 10px !important;
+        padding-bottom: 10px !important;
+        margin-bottom: 4px !important;
       }
       .edit-table tbody tr { min-height: 36px; }
       .edit-table td,
       .edit-table th { padding-top: 6px; padding-bottom: 6px; }
       .admin-section {
-        margin-bottom: 12px !important;
-        padding-bottom: 10px !important;
+        margin-bottom: 10px !important;
+        padding-bottom: 8px !important;
       }
-      .stats { gap: 6px !important; margin-bottom: 8px !important; }
+      .stats { gap: 6px !important; margin-bottom: 6px !important; }
       .stat-card { padding: 6px 10px !important; font-size: 0.75rem !important; }
     }
 
